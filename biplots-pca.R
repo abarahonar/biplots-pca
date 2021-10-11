@@ -1,4 +1,4 @@
-data <- read.csv("~/Projects/biplots-pca/owid-covid-data.csv", header = TRUE)
+data <- read.csv(url("https://raw.githubusercontent.com/abarahonar/biplots-pca/master/owid-covid-data.csv"), header = TRUE)
 
 # According to the source of the data, the variables that have "smoothed" in the
 # name means that "These metrics are averaged versions (over a rolling 7-day
