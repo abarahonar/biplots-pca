@@ -1,0 +1,228 @@
+---
+title: "Innovative data visualization with Biplots"
+output:
+  bookdown::pdf_document2:
+    number_section: yes
+classoption: fleqn
+editor_options: 
+  chunk_output_type: inline
+---
+
+# Covid data set
+The data used for this work comes from [Our World In Data's repositories](https://github.com/owid/covid-19-data/tree/master/public/data). The last entry on the data set corresponds to 10/08/2021.
+```{r include=FALSE}
+set.seed(842744)
+library(dplyr, warn.conflicts = FALSE)
+
+data.original <- read.csv(url("https://raw.githubusercontent.com/abarahonar/biplots-pca/master/owid-covid-data.csv"), header = TRUE)
+```
+
+## Pre-processing
+```{r echo=FALSE}
+# Remove aggregations of data
+# Those are denoted as an iso_code starting with OWID
+ptn <- "^[^OWID].*" # This will match anything that doesn't start with OWID
+ndx <- grep(ptn, data.original$iso_code, perl = TRUE)
+data <- data.original[ndx,]
+# To test it: unique(data.clean[c("iso_code")])
+```
+
+The original data set contains `r count(data.original)` entries with `r ncol(data.original)` variables. However, not all the data is needed. There are several entries that are not useful as they correspond to aggregations of data in terms of geolocalization. These entries marked as OWID consists of `r ceiling((1 - count(data)/count(data.original))*100)`% of the original data set. 
+
+The variables present in the data set can be used to represent two types of information: the evolution of the pandemic as a time series and metrics regarding the situation of the countries as a whole. The former correspond to dynamic data while the latter is static data.
+
+### Countries data set
+The variables used to represent the countries are:
+
+```{r echo=FALSE}
+variables.representing.countries <- c(
+  "population",
+  "population_density",
+  "median_age",
+  "gdp_per_capita",
+  "extreme_poverty",
+  "cardiovasc_death_rate",
+  "diabetes_prevalence",
+  "female_smokers",
+  "male_smokers",
+  "hospital_beds_per_thousand",
+  "life_expectancy",
+  "human_development_index"
+)
+
+variables.representing.countries
+```
+
+```{r echo=FALSE}
+countries <- data[, which(names(data) %in% c("iso_code", variables.representing.countries))]
+countries <- distinct(countries)
+```
+
+After processing those variables, the corresponding data set regarding the countries contains `r count(countries)` entries. However, not every country started reporting at the same time, so in some situations there are noticeable differences in the starting reporting dates. A sample of the starting reporting dates can be seen in the Table \@ref(tab:reportingdates).
+
+```{r reportingdates, echo=FALSE}
+library(knitr)
+
+start.reporting.dates <- data[!duplicated(data$iso_code), ][c("iso_code", "date")]
+rownames(start.reporting.dates) <- NULL
+start.reporting.dates.table <- rbind(head(start.reporting.dates, n = 5), tail(start.reporting.dates, n = 5))
+colnames(start.reporting.dates.table) <- c("ISO code", "Starting reporting date")
+kable(start.reporting.dates.table, caption="First and last 5 countries and their starting reporting dates. Alphabeticaly sorted")
+```
+
+```{r echo=FALSE}
+good.fast.countries <- start.reporting.dates[start.reporting.dates$date < "2020-05-01",]
+countries <- countries[countries$iso_code %in% good.fast.countries$iso_code,]
+
+```
+
+The date 2020-05-01 was selected as the threshold with which countries are removed from the data set. If they started reporting at a latter date, they are not considered. The remaining countries consists of `r count(countries)` entries.
+
+```{r echo=FALSE}
+countries <- na.omit(countries)
+```
+The final trimming consists in eliminate entries with one or more NA values. The final data set consists of `r count(countries)` entries. To see the behaviour of the data set, refer to the Figure \@ref(fig:boxplotsCountries).
+<!-- This redaction needs some serious checking, please help me Natasha -->
+
+```{r boxplotsCountries, fig.cap="Currently working on a title",echo=FALSE}
+library(ggplot2)
+library(reshape2)
+
+# The scales are way too fucking big, we should normalize
+# In the original population box plot, the outliers are way too big to ignore, maybe we should talk about that
+countries.with.names <- countries[, -1]
+rownames(countries.with.names) <- countries[, 1]
+countries <- countries.with.names
+countries.scaled <- scale(countries)
+p <- ggplot(melt(countries.scaled), aes(Var2, value)) +
+  geom_boxplot()  +
+  labs(x = "Variable's name", y = "Standardized values") +
+  coord_flip()
+p
+```
+
+### Time series data set
+
+
+Several columns and rows are not necessary, so they are deleted. The list of deleted rows and variables and the reason is:
+
+* 16161 rows corresponding to physical aggregations of data
+* Continent and location columns due to redundancy <!-- It may be necessary -->
+* Columns related to mortality rates due to it having 83% missing values
+* Hand washing facilities column due to it having 45% missing values and not being relevant to the study
+* Columns related to ICU and hospitalization rates due to it having at least 75% missing values
+* Smoothed columns due to it being time considered and the way the value is obtained is not relevant to the study
+* Columns Relative variables due to it not being a comparable measure
+* Columns related to age due to it being unnecessary to this study
+* Positive rate column due to it having 42% missing values
+<!-- Put the percetange of missing values in code -->
+
+```{r echo=FALSE}
+
+columns.to.die <- c(
+  "continent",
+  "location",
+  "excess_mortality_cumulative_absolute",
+  "excess_mortality_cumulative",
+  "excess_mortality",
+  "excess_mortality_cumulative_per_million",
+  "handwashing_facilities",
+  "icu_patients",
+  "icu_patients_per_million",
+  "hosp_patients",
+  "hosp_patients_per_million",
+  "weekly_icu_admissions",
+  "weekly_icu_admissions_per_million",
+  "weekly_hosp_admissions",
+  "weekly_hosp_admissions_per_million",
+  "new_cases_smoothed",
+  "new_deaths_smoothed",
+  "new_cases_smoothed_per_million",
+  "new_deaths_smoothed_per_million",
+  "new_tests_smoothed",
+  "new_tests_smoothed_per_thousand",
+  "new_vaccinations_smoothed",
+  "new_vaccinations_smoothed_per_million",
+  "positive_rate",
+  "total_cases",
+  "new_cases",
+  "total_deaths",
+  "new_deaths",
+  "new_tests",
+  "total_tests",
+  "total_vaccinations",
+  "people_vaccinated",
+  "people_fully_vaccinated",
+  "total_boosters",
+  "new_vaccinations",
+  "aged_65_older",
+  "tests_units", # DROPPED BECAUSE NOT UNIFORM
+  "aged_70_older"
+)
+
+variables.representing.countries <- c(
+  "population",
+  "population_density",
+  "median_age",
+  "gdp_per_capita",
+  "extreme_poverty",
+  "cardiovasc_death_rate",
+  "diabetes_prevalence",
+  "female_smokers",
+  "male_smokers",
+  "hospital_beds_per_thousand",
+  "life_expectancy",
+  "human_development_index"
+)
+
+variables.not.representing.time.series <- c(
+  columns.to.die,
+  variables.representing.countries
+)
+```
+
+
+```{r echo=FALSE}
+library(knitr)
+
+percentages <- as.data.frame(sapply(data, function(x) ceiling(sum(is.na(x))/count(data)*100)))
+percentages <- t(percentages)
+percentages <- percentages[percentages > 40,]
+percentages <- as.data.frame(percentages)
+percentages <- cbind(Row.Names = rownames(percentages), percentages)
+rownames(percentages) <- NULL
+colnames(percentages) <- c("Variable", "Percentage of NA values [%]")
+percentages$Variable <- substr(percentages$Variable, 1, nchar(percentages$Variable) - 2)
+kable(percentages, caption="Variables with a percentage of NA values over 40\\%")
+```
+
+
+<!-- TODO
+Explain what variables are left and what variables are used to represent the countries.
+
+Compare the behavior of the smoothed variables against the non smoothed to see fluctuations
+Continue with the exploratory statistics
+Check if there are correlations between variables
+
+
+Do some type of agregation (maybe weekly, monthly, to see), also check how it will be done. Will it include the boundries? will it keep the median? the std? Another type of granularity is to have some points with a distance of time (for example, 5 days aggregation but only every 2 weeks).
+Maybe we can try our own smoothing, define the overlaping between time windows and the time windows. The need for the overlap is for the continuity of the data. 
+
+set the seed
+
+
+Maybe do some clustering to check wich countries are close to one another. Maybe not, with biplots you can get the same data
+Check the greenacre pdf as a first reference. In the book there are snippets of code to recreate the differents plots that are present in the book. Its independent from libraries.
+
+Plot the classes obtained fro the cluster in the biplot
+
+Choose granularity: month. There should be a little more than 15 points for each country.
+
+Try hierarchical clustering.  That way we can reduce the number of countries to a "level". In this way we don't have to choose the k in k means. The objective is to obtain a dendogram
+
+Maybe have a basic representation just showing the variables selected and the countries. At first. With biplot you can see if variables are correlated or not (and in what directions). Then we can add the time series into the plot.
+One possible thing that can happen is that the correlation between the variables can change from one time to another. In that case we have to ask ourselves, can we compare the situation in one time with another one?
+Another thing to do, maybe not plot the countries, but just the way the biplot changes over time, to see the fluctuations of the correlations.
+If we have any ideas, we can tackle them.
+To explain the covid stringency index https://ourworldindata.org/covid-stringency-index
+-->
