@@ -94,7 +94,7 @@ library(reshape2)
 
 # The scales are way too big, we should normalize
 # In the original population box plot, the outliers are way too big to ignore, maybe we should talk about that
-countries.scaled <- scale(countries)
+countries.scaled <- scale(subset(countries, select =-c(population)))
 p <- ggplot(melt(countries.scaled), aes(Var2, value)) +
  geom_boxplot() +
  # ylim(-1.8, 3.2) +
@@ -182,10 +182,6 @@ time.series <- time.series[time.series$date >= "2020-05-01",]
 
 ```{r echo=FALSE}
 
-# CHACK IF VALUES LINEARY GROW
-# <- subset(time.series, select =-c(date, iso_code))
-# print(colnames(time.series))
-
 interesting.countries <- c("RUS", "CHL", "CHN", "USA", "DEU", "FRA", "BRA", "TUR", "ITA", "KOR") #countries to plot
 interesting.attributes <- c("people_fully_vaccinated_per_hundred", "total_cases_per_million", "total_vaccinations_per_hundred", "total_tests_per_thousand")
 
@@ -215,14 +211,73 @@ for (i in rownames(countries)) { # for each country
 }
 ```
 
-```{r echo=FALSE}
-#in the future, when we have less points, it would be nice to add points
-#   geom_point(aes(color=iso_code))
-countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
+```{r}
+# Plot all totals
+  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
 p <- ggplot(data = countries.subset, aes(x = date, y = total_cases_per_million, group = iso_code)) +
   geom_line(aes(color = iso_code)) +
   theme(axis.text.x = element_blank())
-p
+print(p)
+# }
+  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
+p <- ggplot(data = countries.subset, aes(x = date, y = total_deaths_per_million, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+
+  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
+p <- ggplot(data = countries.subset, aes(x = date, y = reproduction_rate, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+
+  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
+p <- ggplot(data = countries.subset, aes(x = date, y = total_tests_per_thousand, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+
+  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
+p <- ggplot(data = countries.subset, aes(x = date, y = total_vaccinations_per_hundred, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+
+  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
+p <- ggplot(data = countries.subset, aes(x = date, y = people_vaccinated_per_hundred, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+
+  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
+p <- ggplot(data = countries.subset, aes(x = date, y = people_fully_vaccinated_per_hundred, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+
+  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
+p <- ggplot(data = countries.subset, aes(x = date, y = total_boosters_per_hundred, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+
+  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
+p <- ggplot(data = countries.subset, aes(x = date, y = stringency_index, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+
+
+```
+
+```{r echo=FALSE}
+  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
+p <- ggplot(data = countries.subset, aes(x = date, y = total_cases_per_million, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+# }
+
 # for (i in interesting.countries) {
 #   country.data <- totals.modifies[totals.modifies$iso_code == i,]
 #   p <- ggplot(data = country.data, aes(x = date, y = total_cases_per_million, group = i)) +
@@ -250,6 +305,30 @@ p
 ```
 
 Regarding the time series, the entries related to countries that started to report significantly later than the others, and the measures that are before the aforementioned threshhold date are deleted. On top of that, variables that have a high percentage of NA values are not taken into consideration. A rundown of these variables can be seen in Table \@ref(tab:percentagesTable). It is worth mentioning that not all the variables shown in the aforementioned table are deleted, some of them are too importanted to be discarded (like `total_test_per_thousand`)
+
+```{r}
+# Dependencies
+
+# Total cases on total tests
+  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
+p <- ggplot(data = countries.subset, aes(x = total_cases_per_million, y = total_tests_per_thousand, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+
+  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
+p <- ggplot(data = countries.subset, aes(x = total_cases_per_million, y = total_deaths_per_million, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+
+  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
+p <- ggplot(data = countries.subset, aes(x = people_fully_vaccinated_per_hundred, y = total_cases_per_million, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+```
+
 ```{r percentagesTable, echo=FALSE}
 library(knitr)
 

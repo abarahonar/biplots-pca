@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Debian) (preloaded format=pdflatex 2021.11.4)  5 NOV 2021 16:20
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Debian) (preloaded format=pdflatex 2021.11.4)  11 NOV 2021 22:02
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -318,67 +318,82 @@ Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
 \Gm@layouthoffset=\dimen159
 \Gm@layoutvoffset=\dimen160
 \Gm@dimlist=\toks24
+) (/usr/share/texlive/texmf-dist/tex/latex/fancyvrb/fancyvrb.sty
+Package: fancyvrb 2021/01/20 v3.7 verbatim text (tvz,hv)
+\FV@CodeLineNo=\count280
+\FV@InFile=\read2
+\FV@TabBox=\box49
+\c@FancyVerbLine=\count281
+\FV@StepNumber=\count282
+\FV@OutFile=\write3
+) (/usr/share/texlive/texmf-dist/tex/latex/framed/framed.sty
+Package: framed 2011/10/22 v 0.96: framed or shaded text with page breaks
+\OuterFrameSep=\skip55
+\fb@frw=\dimen161
+\fb@frh=\dimen162
+\FrameRule=\dimen163
+\FrameSep=\dimen164
 ) (/usr/share/texlive/texmf-dist/tex/latex/tools/longtable.sty
 Package: longtable 2020/01/07 v4.13 Multi-page Table package (DPC)
-\LTleft=\skip55
-\LTright=\skip56
-\LTpre=\skip57
-\LTpost=\skip58
-\LTchunksize=\count280
-\LTcapwidth=\dimen161
-\LT@head=\box49
-\LT@firsthead=\box50
-\LT@foot=\box51
-\LT@lastfoot=\box52
-\LT@cols=\count281
-\LT@rows=\count282
-\c@LT@tables=\count283
-\c@LT@chunks=\count284
+\LTleft=\skip56
+\LTright=\skip57
+\LTpre=\skip58
+\LTpost=\skip59
+\LTchunksize=\count283
+\LTcapwidth=\dimen165
+\LT@head=\box50
+\LT@firsthead=\box51
+\LT@foot=\box52
+\LT@lastfoot=\box53
+\LT@cols=\count284
+\LT@rows=\count285
+\c@LT@tables=\count286
+\c@LT@chunks=\count287
 \LT@p@ftn=\toks25
 ) (/usr/share/texlive/texmf-dist/tex/latex/booktabs/booktabs.sty
 Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
-\heavyrulewidth=\dimen162
-\lightrulewidth=\dimen163
-\cmidrulewidth=\dimen164
-\belowrulesep=\dimen165
-\belowbottomsep=\dimen166
-\aboverulesep=\dimen167
-\abovetopsep=\dimen168
-\cmidrulesep=\dimen169
-\cmidrulekern=\dimen170
-\defaultaddspace=\dimen171
-\@cmidla=\count285
-\@cmidlb=\count286
-\@aboverulesep=\dimen172
-\@belowrulesep=\dimen173
-\@thisruleclass=\count287
-\@lastruleclass=\count288
-\@thisrulewidth=\dimen174
+\heavyrulewidth=\dimen166
+\lightrulewidth=\dimen167
+\cmidrulewidth=\dimen168
+\belowrulesep=\dimen169
+\belowbottomsep=\dimen170
+\aboverulesep=\dimen171
+\abovetopsep=\dimen172
+\cmidrulesep=\dimen173
+\cmidrulekern=\dimen174
+\defaultaddspace=\dimen175
+\@cmidla=\count288
+\@cmidlb=\count289
+\@aboverulesep=\dimen176
+\@belowrulesep=\dimen177
+\@thisruleclass=\count290
+\@lastruleclass=\count291
+\@thisrulewidth=\dimen178
 ) (/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty
 Package: array 2020/10/01 v2.5c Tabular extension package (FMi)
-\col@sep=\dimen175
-\ar@mcellbox=\box53
-\extrarowheight=\dimen176
+\col@sep=\dimen179
+\ar@mcellbox=\box54
+\extrarowheight=\dimen180
 \NC@list=\toks26
-\extratabsurround=\skip59
-\backup@length=\skip60
-\ar@cellbox=\box54
+\extratabsurround=\skip60
+\backup@length=\skip61
+\ar@cellbox=\box55
 ) (/usr/share/texlive/texmf-dist/tex/latex/tools/calc.sty
 Package: calc 2017/05/25 v4.3 Infix arithmetic (KKT,FJ)
-\calc@Acount=\count289
-\calc@Bcount=\count290
-\calc@Adimen=\dimen177
-\calc@Bdimen=\dimen178
-\calc@Askip=\skip61
-\calc@Bskip=\skip62
+\calc@Acount=\count292
+\calc@Bcount=\count293
+\calc@Adimen=\dimen181
+\calc@Bdimen=\dimen182
+\calc@Askip=\skip62
+\calc@Bskip=\skip63
 LaTeX Info: Redefining \setlength on input line 80.
 LaTeX Info: Redefining \addtolength on input line 81.
-\calc@Ccount=\count291
-\calc@Cskip=\skip63
+\calc@Ccount=\count294
+\calc@Cskip=\skip64
 ) (/usr/share/texlive/texmf-dist/tex/latex/footnotehyper/footnotehyper.sty
 Package: footnotehyper 2021/02/04 v1.1d hyperref aware footnote.sty (JFB)
-\FNH@notes=\box55
-\FNH@width=\dimen179
+\FNH@notes=\box56
+\FNH@width=\dimen183
 \FNH@toks=\toks27
 ) (/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
 Package: graphicx 2020/09/09 v1.2b Enhanced LaTeX Graphics (DPC,SPQR)
@@ -391,41 +406,41 @@ File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: pdftex.def on input line 105.
 )
-\Gin@req@height=\dimen180
-\Gin@req@width=\dimen181
+\Gin@req@height=\dimen184
+\Gin@req@width=\dimen185
 ) (/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2020-01-29 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count292
-\l__pdf_internal_box=\box56
+\l__color_backend_stack_int=\count295
+\l__pdf_internal_box=\box57
 ) (./biplots-pca.aux)
 \openout1 = `biplots-pca.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 79.
-LaTeX Font Info:    ... okay on input line 79.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 79.
-LaTeX Font Info:    ... okay on input line 79.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 79.
-LaTeX Font Info:    ... okay on input line 79.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 79.
-LaTeX Font Info:    ... okay on input line 79.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 79.
-LaTeX Font Info:    ... okay on input line 79.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 79.
-LaTeX Font Info:    ... okay on input line 79.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 79.
-LaTeX Font Info:    ... okay on input line 79.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 79.
-LaTeX Font Info:    ... okay on input line 79.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 79.
-LaTeX Font Info:    ... okay on input line 79.
-LaTeX Info: Redefining \microtypecontext on input line 79.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 119.
+LaTeX Font Info:    ... okay on input line 119.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 119.
+LaTeX Font Info:    ... okay on input line 119.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 119.
+LaTeX Font Info:    ... okay on input line 119.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 119.
+LaTeX Font Info:    ... okay on input line 119.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 119.
+LaTeX Font Info:    ... okay on input line 119.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 119.
+LaTeX Font Info:    ... okay on input line 119.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 119.
+LaTeX Font Info:    ... okay on input line 119.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 119.
+LaTeX Font Info:    ... okay on input line 119.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 119.
+LaTeX Font Info:    ... okay on input line 119.
+LaTeX Info: Redefining \microtypecontext on input line 119.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using protrusion set `basicmath'.
 Package microtype Info: Automatic font expansion enabled (level 2),
 (microtype)             stretch: 20, shrink: 20, step: 1, non-selected.
 Package microtype Info: Using default expansion set `alltext-nott'.
-LaTeX Info: Redefining \showhyphens on input line 79.
+LaTeX Info: Redefining \showhyphens on input line 119.
 Package microtype Info: No adjustment of tracking.
 Package microtype Info: No adjustment of interword spacing.
 Package microtype Info: No adjustment of character kerning.
@@ -434,16 +449,16 @@ File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman
 (RS)
 ) (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count293
-\scratchdimen=\dimen182
-\scratchbox=\box57
-\nofMPsegments=\count294
-\nofMParguments=\count295
+\scratchcounter=\count296
+\scratchdimen=\dimen186
+\scratchbox=\box58
+\nofMPsegments=\count297
+\nofMParguments=\count298
 \everyMPshowfont=\toks28
-\MPscratchCnt=\count296
-\MPscratchDim=\dimen183
-\MPnumerator=\count297
-\makeMPintoPDFobject=\count298
+\MPscratchCnt=\count299
+\MPscratchDim=\dimen187
+\MPnumerator=\count300
+\makeMPintoPDFobject=\count301
 \everyMPtoPDFconversion=\toks29
 ) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
@@ -453,7 +468,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-Package hyperref Info: Link coloring OFF on input line 79.
+Package hyperref Info: Link coloring OFF on input line 119.
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2019/09/16 v2.46 Cross-referencing by name of section
 (/usr/share/texlive/texmf-dist/tex/latex/refcount/refcount.sty
@@ -461,11 +476,11 @@ Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
 ) (/usr/share/texlive/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
-\c@section@level=\count299
+\c@section@level=\count302
 )
-LaTeX Info: Redefining \ref on input line 79.
-LaTeX Info: Redefining \pageref on input line 79.
-LaTeX Info: Redefining \nameref on input line 79.
+LaTeX Info: Redefining \ref on input line 119.
+LaTeX Info: Redefining \pageref on input line 119.
+LaTeX Info: Redefining \nameref on input line 119.
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
 *geometry* verbose mode - [ preamble ] result:
@@ -500,41 +515,41 @@ LaTeX Info: Redefining \nameref on input line 79.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 8
-1.
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 1
+21.
 (/usr/share/texmf/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 8
-1.
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 1
+21.
 (/usr/share/texmf/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-81.
+121.
 (/usr/share/texmf/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-81.
+121.
 (/usr/share/texmf/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 81.
+(Font)              <12> on input line 121.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 81.
+(Font)              <8> on input line 121.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 81.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 81.
-
+(Font)              <6> on input line 121.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 121
+.
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 ) (/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 81.
-
+LaTeX Font Info:    Trying to load font information for U+msb on input line 121
+.
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msb.cfg
@@ -547,17 +562,17 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <5> on input line 2.
 )
-\tf@toc=\write3
-\openout3 = `biplots-pca.toc'.
+\tf@toc=\write4
+\openout4 = `biplots-pca.toc'.
 
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
-03.
+43.
 (/usr/share/texmf/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 
 LaTeX Warning: Reference `fig:boxplotsCountries' on page 1 undefined on input l
-ine 147.
+ine 187.
 
 <biplots-pca_files/figure-latex/boxplotsCountries-1.pdf, id=8, 463.7325pt x 316
 .18124pt>
@@ -565,7 +580,7 @@ File: biplots-pca_files/figure-latex/boxplotsCountries-1.pdf Graphic file (type
  pdf)
 <use biplots-pca_files/figure-latex/boxplotsCountries-1.pdf>
 Package pdftex.def Info: biplots-pca_files/figure-latex/boxplotsCountries-1.pdf
-  used on input line 149.
+  used on input line 189.
 (pdftex.def)             Requested size: 463.73842pt x 316.18529pt.
 <biplots-pca_files/figure-latex/unnamed-chunk-8-1.pdf, id=9, 457.71pt x 315.177
 5pt>
@@ -573,10 +588,10 @@ File: biplots-pca_files/figure-latex/unnamed-chunk-8-1.pdf Graphic file (type p
 df)
 <use biplots-pca_files/figure-latex/unnamed-chunk-8-1.pdf>
 Package pdftex.def Info: biplots-pca_files/figure-latex/unnamed-chunk-8-1.pdf  
-used on input line 150.
+used on input line 190.
 (pdftex.def)             Requested size: 457.72984pt x 315.19115pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 149--151
+Underfull \hbox (badness 10000) in paragraph at lines 189--191
 [][]
  []
 
@@ -590,31 +605,140 @@ File: biplots-pca_files/figure-latex/unnamed-chunk-12-1.pdf Graphic file (type
 pdf)
 <use biplots-pca_files/figure-latex/unnamed-chunk-12-1.pdf>
 Package pdftex.def Info: biplots-pca_files/figure-latex/unnamed-chunk-12-1.pdf 
- used on input line 155.
+ used on input line 206.
 (pdftex.def)             Requested size: 453.6939pt x 313.16922pt.
-[3 <./biplots-pca_files/figure-latex/unnamed-chunk-8-1.pdf>] [4 <./biplots-pca_
-files/figure-latex/unnamed-chunk-12-1.pdf>] [5] (./biplots-pca.aux)
+[3 <./biplots-pca_files/figure-latex/unnamed-chunk-8-1.pdf>]
+<biplots-pca_files/figure-latex/unnamed-chunk-12-2.pdf, id=55, 453.695pt x 313.
+17pt>
+File: biplots-pca_files/figure-latex/unnamed-chunk-12-2.pdf Graphic file (type 
+pdf)
+<use biplots-pca_files/figure-latex/unnamed-chunk-12-2.pdf>
+Package pdftex.def Info: biplots-pca_files/figure-latex/unnamed-chunk-12-2.pdf 
+ used on input line 219.
+(pdftex.def)             Requested size: 453.6939pt x 313.16922pt.
+[4 <./biplots-pca_files/figure-latex/unnamed-chunk-12-1.pdf>]
+<biplots-pca_files/figure-latex/unnamed-chunk-12-3.pdf, id=67, 453.695pt x 313.
+17pt>
+File: biplots-pca_files/figure-latex/unnamed-chunk-12-3.pdf Graphic file (type 
+pdf)
+<use biplots-pca_files/figure-latex/unnamed-chunk-12-3.pdf>
+Package pdftex.def Info: biplots-pca_files/figure-latex/unnamed-chunk-12-3.pdf 
+ used on input line 231.
+(pdftex.def)             Requested size: 453.6939pt x 313.16922pt.
+[5 <./biplots-pca_files/figure-latex/unnamed-chunk-12-2.pdf>]
+<biplots-pca_files/figure-latex/unnamed-chunk-12-4.pdf, id=79, 453.695pt x 313.
+17pt>
+File: biplots-pca_files/figure-latex/unnamed-chunk-12-4.pdf Graphic file (type 
+pdf)
+<use biplots-pca_files/figure-latex/unnamed-chunk-12-4.pdf>
+Package pdftex.def Info: biplots-pca_files/figure-latex/unnamed-chunk-12-4.pdf 
+ used on input line 243.
+(pdftex.def)             Requested size: 453.6939pt x 313.16922pt.
+[6 <./biplots-pca_files/figure-latex/unnamed-chunk-12-3.pdf>]
+<biplots-pca_files/figure-latex/unnamed-chunk-12-5.pdf, id=91, 453.695pt x 313.
+17pt>
+File: biplots-pca_files/figure-latex/unnamed-chunk-12-5.pdf Graphic file (type 
+pdf)
+<use biplots-pca_files/figure-latex/unnamed-chunk-12-5.pdf>
+Package pdftex.def Info: biplots-pca_files/figure-latex/unnamed-chunk-12-5.pdf 
+ used on input line 255.
+(pdftex.def)             Requested size: 453.6939pt x 313.16922pt.
+[7 <./biplots-pca_files/figure-latex/unnamed-chunk-12-4.pdf>]
+<biplots-pca_files/figure-latex/unnamed-chunk-12-6.pdf, id=104, 453.695pt x 313
+.17pt>
+File: biplots-pca_files/figure-latex/unnamed-chunk-12-6.pdf Graphic file (type 
+pdf)
+<use biplots-pca_files/figure-latex/unnamed-chunk-12-6.pdf>
+Package pdftex.def Info: biplots-pca_files/figure-latex/unnamed-chunk-12-6.pdf 
+ used on input line 267.
+(pdftex.def)             Requested size: 453.6939pt x 313.16922pt.
+[8 <./biplots-pca_files/figure-latex/unnamed-chunk-12-5.pdf>]
+<biplots-pca_files/figure-latex/unnamed-chunk-12-7.pdf, id=116, 453.695pt x 313
+.17pt>
+File: biplots-pca_files/figure-latex/unnamed-chunk-12-7.pdf Graphic file (type 
+pdf)
+<use biplots-pca_files/figure-latex/unnamed-chunk-12-7.pdf>
+Package pdftex.def Info: biplots-pca_files/figure-latex/unnamed-chunk-12-7.pdf 
+ used on input line 279.
+(pdftex.def)             Requested size: 453.6939pt x 313.16922pt.
+[9 <./biplots-pca_files/figure-latex/unnamed-chunk-12-6.pdf>]
+<biplots-pca_files/figure-latex/unnamed-chunk-12-8.pdf, id=128, 453.695pt x 313
+.17pt>
+File: biplots-pca_files/figure-latex/unnamed-chunk-12-8.pdf Graphic file (type 
+pdf)
+<use biplots-pca_files/figure-latex/unnamed-chunk-12-8.pdf>
+Package pdftex.def Info: biplots-pca_files/figure-latex/unnamed-chunk-12-8.pdf 
+ used on input line 291.
+(pdftex.def)             Requested size: 453.6939pt x 313.16922pt.
+[10 <./biplots-pca_files/figure-latex/unnamed-chunk-12-7.pdf>]
+<biplots-pca_files/figure-latex/unnamed-chunk-12-9.pdf, id=140, 453.695pt x 314
+.17375pt>
+File: biplots-pca_files/figure-latex/unnamed-chunk-12-9.pdf Graphic file (type 
+pdf)
+<use biplots-pca_files/figure-latex/unnamed-chunk-12-9.pdf>
+Package pdftex.def Info: biplots-pca_files/figure-latex/unnamed-chunk-12-9.pdf 
+ used on input line 303.
+(pdftex.def)             Requested size: 453.6939pt x 314.17297pt.
+[11 <./biplots-pca_files/figure-latex/unnamed-chunk-12-8.pdf>]
+<biplots-pca_files/figure-latex/unnamed-chunk-13-1.pdf, id=152, 453.695pt x 313
+.17pt>
+File: biplots-pca_files/figure-latex/unnamed-chunk-13-1.pdf Graphic file (type 
+pdf)
+<use biplots-pca_files/figure-latex/unnamed-chunk-13-1.pdf>
+Package pdftex.def Info: biplots-pca_files/figure-latex/unnamed-chunk-13-1.pdf 
+ used on input line 305.
+(pdftex.def)             Requested size: 453.6939pt x 313.16922pt.
+[12 <./biplots-pca_files/figure-latex/unnamed-chunk-12-9.pdf> <./biplots-pca_fi
+les/figure-latex/unnamed-chunk-13-1.pdf>]
+<biplots-pca_files/figure-latex/unnamed-chunk-14-1.pdf, id=173, 453.695pt x 315
+.1775pt>
+File: biplots-pca_files/figure-latex/unnamed-chunk-14-1.pdf Graphic file (type 
+pdf)
+<use biplots-pca_files/figure-latex/unnamed-chunk-14-1.pdf>
+Package pdftex.def Info: biplots-pca_files/figure-latex/unnamed-chunk-14-1.pdf 
+ used on input line 322.
+(pdftex.def)             Requested size: 453.6939pt x 315.17673pt.
+<biplots-pca_files/figure-latex/unnamed-chunk-14-2.pdf, id=174, 453.695pt x 315
+.1775pt>
+File: biplots-pca_files/figure-latex/unnamed-chunk-14-2.pdf Graphic file (type 
+pdf)
+<use biplots-pca_files/figure-latex/unnamed-chunk-14-2.pdf>
+Package pdftex.def Info: biplots-pca_files/figure-latex/unnamed-chunk-14-2.pdf 
+ used on input line 334.
+(pdftex.def)             Requested size: 453.6939pt x 315.17673pt.
+[13 <./biplots-pca_files/figure-latex/unnamed-chunk-14-1.pdf>]
+<biplots-pca_files/figure-latex/unnamed-chunk-14-3.pdf, id=188, 453.695pt x 315
+.1775pt>
+File: biplots-pca_files/figure-latex/unnamed-chunk-14-3.pdf Graphic file (type 
+pdf)
+<use biplots-pca_files/figure-latex/unnamed-chunk-14-3.pdf>
+Package pdftex.def Info: biplots-pca_files/figure-latex/unnamed-chunk-14-3.pdf 
+ used on input line 346.
+(pdftex.def)             Requested size: 453.6939pt x 315.17673pt.
+[14 <./biplots-pca_files/figure-latex/unnamed-chunk-14-2.pdf>] [15 <./biplots-p
+ca_files/figure-latex/unnamed-chunk-14-3.pdf>] [16] (./biplots-pca.aux)
 
 LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 13367 strings out of 479304
- 196249 string characters out of 5869779
- 533973 words of memory out of 5000000
- 30238 multiletter control sequences out of 15000+600000
- 456652 words of font info for 104 fonts, out of 8000000 for 9000
+ 13923 strings out of 479304
+ 207400 string characters out of 5869779
+ 544177 words of memory out of 5000000
+ 30762 multiletter control sequences out of 15000+600000
+ 456971 words of font info for 105 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 85i,8n,88p,623b,341s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 85i,8n,88p,614b,360s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}</usr/share/texmf/fonts/type1/
 public/lm/lmbx10.pfb></usr/share/texmf/fonts/type1/public/lm/lmbx12.pfb></usr/s
 hare/texmf/fonts/type1/public/lm/lmbxi10.pfb></usr/share/texmf/fonts/type1/publ
 ic/lm/lmr10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr17.pfb></usr/share/t
-exmf/fonts/type1/public/lm/lmtt10.pfb>
-Output written on biplots-pca.pdf (5 pages, 194963 bytes).
+exmf/fonts/type1/public/lm/lmtt10.pfb></usr/share/texmf/fonts/type1/public/lm/l
+mtti10.pfb>
+Output written on biplots-pca.pdf (16 pages, 485613 bytes).
 PDF statistics:
- 104 PDF objects out of 1000 (max. 8388607)
- 81 compressed objects within 1 object stream
- 17 named destinations out of 1000 (max. 500000)
- 28704 words of extra memory for PDF output out of 29859 (max. 10000000)
+ 254 PDF objects out of 1000 (max. 8388607)
+ 182 compressed objects within 2 object streams
+ 28 named destinations out of 1000 (max. 500000)
+ 28764 words of extra memory for PDF output out of 29859 (max. 10000000)
 
