@@ -1,12 +1,3 @@
-time.series <- data[, -which(names(data) %in% variables.not.representing.time.series)]
-
-
-time.series <- time.series[time.series$iso_code %in% good.fast.countries$iso_code,]
-
-without.vatican <- na.omit(countries)
-
-with.names <- without.vatican[, -1]
-rownames(with.names) <- without.vatican[, 1]
 
 k <- kmeans(with.names, 5)
 
