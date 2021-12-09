@@ -1,119 +1,112 @@
 ---
-title: "Innovative data visualization with Biplots"
+title: Work in progress
 output:
-  bookdown::pdf_document2:
-    number_section: yes
+    bookdown::pdf_document2:
+        keep_tex: true
 classoption: fleqn
-editor_options: 
-  chunk_output_type: inline
 ---
 
-# Covid data set
-The data used for this work comes from [Our World In Data's repositories](https://github.com/owid/covid-19-data/tree/master/public/data). The last entry on the data set corresponds to 10/08/2021.
-```{r include=FALSE}
+# Pre-proccesing
+
+```{r loadingdata, echo=FALSE}
+knitr::opts_chunk$set(echo = FALSE, dpi = 300)
 set.seed(842744)
 library(dplyr, warn.conflicts = FALSE)
 
-data.original <- read.csv(url("https://raw.githubusercontent.com/abarahonar/biplots-pca/master/owid-covid-data.csv"), header = TRUE)
+link <- "https://raw.githubusercontent.com/abarahonar/biplots-pca/master/owid-covid-data.csv" # nolint
+data_original <- read.csv(url(link), header = TRUE)
 ```
 
-## Pre-processing
-```{r echo=FALSE}
+The data used for this work comes from [Our World In Data's repositories](https://github.com/owid/covid-19-data/tree/master/public/data). The last entry on the data set corresponds to 10/08/2021.
+
+## Cleaning
+
+```{r deletingowidentries}
 # Remove aggregations of data
 # Those are denoted as an iso_code starting with OWID
-ptn <- "^[^OWID].*" # This will match anything that doesn't start with OWID
-ndx <- grep(ptn, data.original$iso_code, perl = TRUE)
-data <- data.original[ndx,]
+ptn <- "^[^O][^W][^I][^D]*" # Will match anything that doesn't start with OWID
+ndx <- grep(ptn, data_original$iso_code, perl = TRUE)
+data <- data_original[ndx, ]
 # To test it: unique(data.clean[c("iso_code")])
 ```
 
-The original data set contains `r count(data.original)` entries with `r ncol(data.original)` variables. However, not all the data is needed. There are several entries that are not useful as they correspond to aggregations of data in terms of geolocalization. These entries marked as OWID consists of `r ceiling((1 - count(data)/count(data.original))*100)`% of the original data set. 
+The original data set contains `r count(data_original)` entries with `r ncol(data_original)` variables. However, not all the data is needed. There are several entries that are not useful as they correspond to aggregations of data in terms of geolocalization. These entries marked as OWID consists of `r ceiling((1 - count(data)/count(data_original))*100)`% of the original data set. 
 
 The variables in the data set can be used to represent two types of information: the evolution of the pandemic as a time series and metrics regarding the situation of the countries as a whole. The former correspond to dynamic data while the latter is static data.
 
 ### Countries data set
 The variables used to represent the countries are:
 
-```{r echo=FALSE}
-variables.representing.countries <- c(
+```{r definitionofcountryvariables}
+library(pander, warn.conflicts = FALSE)
+
+country_variables <- c(
   "population",
   "population_density",
   "median_age",
   "gdp_per_capita",
-  "extreme_poverty",
   "cardiovasc_death_rate",
   "diabetes_prevalence",
-  "female_smokers",
-  "male_smokers",
   "hospital_beds_per_thousand",
   "life_expectancy",
   "human_development_index"
 )
 
-variables.representing.countries
-```
-
-```{r echo=FALSE}
-countries <- data[, which(names(data) %in% c("iso_code", variables.representing.countries))]
+countries <- data[, which(names(data) %in% c("iso_code", country_variables))]
 countries <- distinct(countries)
+
+pander(country_variables)
 ```
 
 The corresponding data set regarding the countries contains `r count(countries)` entries. However, not every country started reporting at the same time, in some situations there are noticeable differences in the starting reporting dates. A sample of the starting reporting dates can be seen in the Table \@ref(tab:reportingdates).
 
-```{r reportingdates, echo=FALSE}
-library(knitr)
+```{r reportingdates}
+library(knitr, warn.conflicts = FALSE)
 
-start.reporting.dates <- data[!duplicated(data$iso_code), ][c("iso_code", "date")]
-rownames(start.reporting.dates) <- NULL
-start.reporting.dates.table <- rbind(head(start.reporting.dates, n = 5), tail(start.reporting.dates, n = 5))
-colnames(start.reporting.dates.table) <- c("ISO code", "Starting reporting date")
-kable(start.reporting.dates.table, caption="First and last 5 countries and their starting reporting dates. Alphabeticaly sorted. It can be seen in the fifth entry that the reporting date starts 1 year later in comparison to the majority of countries.")
-```
+reporting_dates <- data[!duplicated(data$iso_code), ][c("iso_code", "date")]
+rownames(reporting_dates) <- NULL
 
-```{r echo=FALSE}
-fast.countries <- start.reporting.dates[start.reporting.dates$date < "2020-05-01",]
-countries <- countries[countries$iso_code %in% fast.countries$iso_code,]
+head_dates <- head(reporting_dates, n = 5)
+tail_dates <- tail(reporting_dates, n = 5)
+
+reporting_dates_t <- rbind(head_dates, tail_dates)
+colnames(reporting_dates_t) <- c("ISO code", "Starting reporting date")
+
+kable(reporting_dates_t, caption = "First and last 5 countries and their starting reporting dates. Alphabeticaly sorted. It can be seen in the fifth entry that the reporting date starts 1 year later in comparison to the majority of countries.") # nolint
+
+fast_countries <- reporting_dates[reporting_dates$date < "2020-05-01", ]
+countries <- countries[countries$iso_code %in% fast_countries$iso_code, ]
 ```
 
 The date 05/01/2020 was selected as the threshold with which countries are removed from the data set. If they started reporting at a latter date, they are not considered. The remaining countries consists of `r count(countries)` entries.
 
-```{r echo=FALSE}
+```{r deletingnas}
 countries <- na.omit(countries)
-```
-The next trimming consists of eliminating entries with one or more NA (***not assigned***) values. Afther this, the data set consists of `r count(countries)` entries. To see the behaviour of the data set, refer to the Figure \@ref(fig:boxplotsCountries).
-<!-- This redaction needs some serious checking, please help me Natasha -->
-```{r echo=FALSE}
-countries.with.names <- countries[, -1]
-rownames(countries.with.names) <- countries[, 1]
-countries <- countries.with.names
+countries_with_names <- countries[, -1]
+rownames(countries_with_names) <- countries[, 1]
+countries <- countries_with_names
 ```
 
-```{r boxplotsCountries, fig.cap="Boxplots of the different variables. Outliers are not plotted for better readability",echo=FALSE, warning=FALSE}
-library(ggplot2)
-library(reshape2)
+The next trimming consists of eliminating entries with one or more NA (***not assigned***) values. Afther this, the data set consists of `r count(countries)` entries. To see the behaviour of the data set, refer to the Figure \@ref(fig:lotboxplots).
+
+```{r lotboxplots, fig.cap = "Boxplots of the different variables"}
+library(ggplot2, warn.conflicts = FALSE)
+library(reshape2, warn.conflicts = FALSE)
 
 # The scales are way too big, we should normalize
-# In the original population box plot, the outliers are way too big to ignore, maybe we should talk about that
-countries.scaled <- scale(subset(countries, select =-c(population)))
-p <- ggplot(melt(countries.scaled), aes(Var2, value)) +
- geom_boxplot() +
- # ylim(-1.8, 3.2) +
-  labs(x = "Variable's name", y = "Standardized values")
-p  +  coord_flip()
-```
-```{r echo=FALSE}
-library("ggdendro")
-distance <- dist(countries.scaled)
-countries.cluster <- hclust(distance)
-# https://stackoverflow.com/questions/21474388/colorize-clusters-in-dendogram-with-ggplot2
-ggdendrogram(countries.cluster, rotate = TRUE, theme_dendro = FALSE)
+countries_scaled <- scale(subset(countries, select = -c(population)))
+ggplot(melt(countries_scaled), aes(Var2, value)) +
+  geom_boxplot() +
+  labs(x = "Variable's name", y = "Standardized values") +
+  coord_flip()
 ```
 
 ### Time series data set
 
-```{r echo=FALSE}
+Regarding the time series, the entries related to countries that started to report significantly later than the others, and the measures that are before the aforementioned threshhold date are deleted. On top of that, variables that have a high percentage of NA values are not taken into consideration. A rundown of these variables can be seen in Table \@ref(tab:percentagesTable). It is worth mentioning that not all the variables shown in the aforementioned table are deleted, some of them are too importante to be discarded (like `total_test_per_thousand`)
 
-columns.to.die <- c(
+```{r}
+columns_to_delete <- c(
   "continent",
   "location",
   "excess_mortality_cumulative_absolute",
@@ -150,226 +143,214 @@ columns.to.die <- c(
   "total_boosters",
   "new_vaccinations",
   "aged_65_older",
-  "tests_units", # DROPPED BECAUSE NOT UNIFORM
+  "tests_units",
   "aged_70_older"
 )
 
-variables.not.representing.time.series <- c(
-  columns.to.die,
-  variables.representing.countries
+unnecesary_variables <- c(
+  columns_to_delete,
+  country_variables
 )
 
-time.series <- data[, -which(names(data) %in% variables.not.representing.time.series)]
-time.series <- time.series[time.series$iso_code %in% rownames(countries),]
-time.series <- time.series[time.series$date >= "2020-05-01",]
+time_series <- data[, -which(names(data) %in% unnecesary_variables)]
+time_series <- time_series[time_series$iso_code %in% rownames(countries), ]
+time_series <- time_series[time_series$date >= "2020-05-01", ]
 ```
 
-```{r echo=FALSE}
-## SMTH ALAN TRIES AND IT WORKED
-#nas.for.countries <- time.series[0,]
-#for (i in rownames(countries)) {
-#  asdfgh <- time.series[time.series$iso_code == i,]
-#  count <- sapply(asdfgh, function(x) sum(is.na(x)))
-#  nas.for.countries[nrow(nas.for.countries) + 1,] <- unname(count)
-#}
-#rownames(nas.for.countries) <- rownames(countries)
-
-#nas.ammount <- as.data.frame(cbind(iso_code = rownames(nas.for.countries), total = rowSums(sapply(nas.for.countries, function(x) as.numeric(as.character(x))))))
-#nas.ammount <- nas.ammount[nas.ammount$total >= 3500,]
-#rownames(nas.ammount) <- NULL
-#kable(nas.ammount, caption="TODO")
+```{r percentagesTable}
+percentages <- sapply(data,
+                      function(x) ceiling(sum(is.na(x)) / count(data) * 100))
+percentages <- as.data.frame(percentages)
+percentages <- t(percentages)
+percentages <- percentages[percentages > 60, ]
+percentages <- as.data.frame(percentages)
+percentages <- cbind(Row.Names = rownames(percentages), percentages)
+rownames(percentages) <- NULL
+colnames(percentages) <- c("variable", "percentage")
+percentages$variable <- substr(percentages$variable,
+                              1,
+                              nchar(percentages$variable) - 2)
+kable(percentages, caption="Variables with a percentage of NA values over 60\\%") # nolint
 ```
 
-```{r echo=FALSE}
+Another processing done to the time series corresponds to deleting relative variables to the day. This is done because its easier to interpret missing values in acumulative variables. The way it is interpreted is through the assumption that it takes the last known value. In the cases when there is no previous information, it is assumed to be 0.
 
-interesting.countries <- c("RUS", "CHL", "CHN", "USA", "DEU", "FRA", "BRA", "TUR", "ITA", "KOR") #countries to plot
-interesting.attributes <- c("people_fully_vaccinated_per_hundred", "total_cases_per_million", "total_vaccinations_per_hundred", "total_tests_per_thousand")
+```{r}
+# Actually the next elimination can be only applied to total cases because they are the sum of every day cases. If we set previous values for an NA in columns like new_cases then we artificially increase total cases(?) because to determine total we sum up new once # nolint
 
-totals <- subset(time.series, select =-c(new_tests_per_thousand, new_deaths_per_million, tests_per_case, new_cases_per_million)) # actually the next elimination can be only applied to total cases because they are the sum of every day cases. If we set previous values for an NA in columns like new_cases then we artificially increase total cases(?) because to determine total we sum up new once
-totals.modifies <- totals[0,]
+# El unico problema de solamente tener los totales es que se pierden las correlaciones (ya que las variables siempre son crecientes) # nolint
+totals <- subset(time_series, select = -c(
+  new_tests_per_thousand,
+  new_deaths_per_million,
+  tests_per_case,
+  new_cases_per_million
+))
+
+totals_modifies <- totals[0, ]
 
 for (i in rownames(countries)) { # for each country
-  country.subset <- totals[totals$iso_code == i,]
-  country.subset.modified <- country.subset
-  for (j in colnames(subset(country.subset , select =-c(date, iso_code)))) { # for each column name
-    col.values <- country.subset[[j]] #select one column
-    #print(i)
-    #print(j)
-    #print(col.values
-    
-    for (k in 1:length(col.values)) {
+  country_subset <- totals[totals$iso_code == i, ]
+  country_subset_mod <- country_subset
+  # for each column name
+  for (j in colnames(subset(country_subset, select = -c(date, iso_code)))) {
+    col.values <- country_subset[[j]] #select one column
+    for (k in seq_along(col.values)) {
       if (is.na(col.values[[k]])) { # if value = NA
         if (k == 1) { # if first element -> set = 0
-          country.subset.modified[[j]][[k]] <- 0.0
+          country_subset_mod[[j]][[k]] <- 0.0
         } else { # else set the last known one
-          country.subset.modified[[j]][[k]] <- country.subset.modified[[j]][[k-1]]
+          country_subset_mod[[j]][[k]] <- country_subset_mod[[j]][[k - 1]]
         }
       }
     }
   }
-  totals.modifies <- rbind(totals.modifies, country.subset.modified)  
+  totals_modifies <- rbind(totals_modifies, country_subset_mod)
 }
+
+time_series <- totals_modifies
 ```
 
+#### Agreggation of temporal data
+
 ```{r}
+aggregate_data <- function(countries, time_series, jump) {
+  to_return <- time_series[0, ]
+  for (i in rownames(countries)) {
+    country_subset <- time_series[time_series$iso_code == i, ] # nolint
+    j <- jump
+    while (j <= nrow(country_subset)) {
+      temp <- time_series[0, ]
+      temp[1, ] <- NA
+      temp[[1]][[1]] <- country_subset[[1]][[1]]
+      temp[[2]][[1]] <- country_subset[[2]][[j]]
+      for (k in colnames(subset(country_subset, select = -c(date, iso_code)))) {
+        temp[[k]][[1]] <- country_subset[[k]][[j]]
+      }
+      to_return <- rbind(to_return, temp)
+      j <- j + jump
+    }
+  }
+  return(to_return)
+}
+
+time_series_weekly <- aggregate_data(countries, time_series, 7)
+time_series_biweekly <- aggregate_data(countries, time_series, 14)
+time_series_monthly <- aggregate_data(countries, time_series, 31)
+```
+
+Aggregation of data is done by temporal terms rather than geographical terms. This means that the time series is available with a daily, weekly, biweekly and monthly evolution, with `r nrow(time_series)`, `r nrow(time_series_weekly)`, `r nrow(time_series_biweekly)`, `r nrow(time_series_monthly)` entries respectively.
+
+#### Plots of some variables in countries
+```{r}
+interesting_countires <- c(
+  "RUS",
+  "CHL",
+  "CHN",
+  "USA",
+  "DEU",
+  "FRA",
+  "BRA",
+  "TUR",
+  "ITA",
+  "KOR"
+  ) #countries to plot
+
 # Plot all totals
-  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
-p <- ggplot(data = countries.subset, aes(x = date, y = total_cases_per_million, group = iso_code)) +
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date, y = total_cases_per_million,
+            group = iso_code)) +
   geom_line(aes(color = iso_code)) +
   theme(axis.text.x = element_blank())
 print(p)
 # }
-  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
-p <- ggplot(data = countries.subset, aes(x = date, y = total_deaths_per_million, group = iso_code)) +
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date, y = total_deaths_per_million, group = iso_code)) +
   geom_line(aes(color = iso_code)) +
   theme(axis.text.x = element_blank())
 print(p)
 
-  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
-p <- ggplot(data = countries.subset, aes(x = date, y = reproduction_rate, group = iso_code)) +
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date, y = reproduction_rate, group = iso_code)) +
   geom_line(aes(color = iso_code)) +
   theme(axis.text.x = element_blank())
 print(p)
 
-  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
-p <- ggplot(data = countries.subset, aes(x = date, y = total_tests_per_thousand, group = iso_code)) +
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date, y = total_tests_per_thousand, group = iso_code)) +
   geom_line(aes(color = iso_code)) +
   theme(axis.text.x = element_blank())
 print(p)
 
-  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
-p <- ggplot(data = countries.subset, aes(x = date, y = total_vaccinations_per_hundred, group = iso_code)) +
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date,
+                y = total_vaccinations_per_hundred,
+                group = iso_code)) +
   geom_line(aes(color = iso_code)) +
   theme(axis.text.x = element_blank())
 print(p)
 
-  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
-p <- ggplot(data = countries.subset, aes(x = date, y = people_vaccinated_per_hundred, group = iso_code)) +
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date,
+                y = people_vaccinated_per_hundred,
+                group = iso_code)) +
   geom_line(aes(color = iso_code)) +
   theme(axis.text.x = element_blank())
 print(p)
 
-  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
-p <- ggplot(data = countries.subset, aes(x = date, y = people_fully_vaccinated_per_hundred, group = iso_code)) +
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date,
+                y = people_fully_vaccinated_per_hundred,
+                group = iso_code)) +
   geom_line(aes(color = iso_code)) +
   theme(axis.text.x = element_blank())
 print(p)
 
-  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
-p <- ggplot(data = countries.subset, aes(x = date, y = total_boosters_per_hundred, group = iso_code)) +
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date, y = total_boosters_per_hundred, group = iso_code)) +
   geom_line(aes(color = iso_code)) +
   theme(axis.text.x = element_blank())
 print(p)
 
-  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
-p <- ggplot(data = countries.subset, aes(x = date, y = stringency_index, group = iso_code)) +
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date, y = stringency_index, group = iso_code)) +
   geom_line(aes(color = iso_code)) +
   theme(axis.text.x = element_blank())
 print(p)
 
-
-```
-
-```{r echo=FALSE}
-  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
-p <- ggplot(data = countries.subset, aes(x = date, y = total_cases_per_million, group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-# }
-
-# for (i in interesting.countries) {
-#   country.data <- totals.modifies[totals.modifies$iso_code == i,]
-#   p <- ggplot(data = country.data, aes(x = date, y = total_cases_per_million, group = i)) +
-#     geom_line()
-#   break
-#   #Plot interesting countries
-#     #if (i %in% interesting.countries & j %in% interesting.attributes) {
-#     # if (i %in% interesting.countries) {
-#     #   df$Date <- as.Date(country.subset.modified$date, '%Y/%m/%d')
-#     #   df$Visits <- (country.subset.modified$total_cases_per_million)
-#     #   require(ggplot2)
-#     #   ggplot( data = df, aes( Date, Visits )) + geom_line() 
-#     #   
-#     # }
-#     
-#     # Check: outprint values for ALB "people_vaccinated_per_hundred"
-#     # if (i == "ALB" & j == "people_vaccinated_per_hundred") {
-#     #   print(j)
-#     #   print("raw")
-#     #   print(country.subset[[j]])
-#     #   print("modified")
-#     #   print(country.subset.modified[[j]])
-#     # }
-# }
-```
-
-Regarding the time series, the entries related to countries that started to report significantly later than the others, and the measures that are before the aforementioned threshhold date are deleted. On top of that, variables that have a high percentage of NA values are not taken into consideration. A rundown of these variables can be seen in Table \@ref(tab:percentagesTable). It is worth mentioning that not all the variables shown in the aforementioned table are deleted, some of them are too importanted to be discarded (like `total_test_per_thousand`)
-
-```{r}
-# Dependencies
-
-# Total cases on total tests
-  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
-p <- ggplot(data = countries.subset, aes(x = total_cases_per_million, y = total_tests_per_thousand, group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-
-  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
-p <- ggplot(data = countries.subset, aes(x = total_cases_per_million, y = total_deaths_per_million, group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-
-  countries.subset <- totals.modifies[totals.modifies$iso_code %in% interesting.countries,]
-p <- ggplot(data = countries.subset, aes(x = people_fully_vaccinated_per_hundred, y = total_cases_per_million, group = iso_code)) +
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date, y = total_cases_per_million, group = iso_code)) +
   geom_line(aes(color = iso_code)) +
   theme(axis.text.x = element_blank())
 print(p)
 ```
 
-```{r percentagesTable, echo=FALSE}
-library(knitr)
 
-percentages <- as.data.frame(sapply(data, function(x) ceiling(sum(is.na(x))/count(data)*100)))
-percentages <- t(percentages)
-percentages <- percentages[percentages > 40,]
-percentages <- as.data.frame(percentages)
-percentages <- cbind(Row.Names = rownames(percentages), percentages)
-rownames(percentages) <- NULL
-colnames(percentages) <- c("Variable", "Percentage of NA values [%]")
-percentages$Variable <- substr(percentages$Variable, 1, nchar(percentages$Variable) - 2)
-kable(percentages, caption="Variables with a percentage of NA values over 40\\%")
+## Hierarchical clustering
+
+```{r dendogram, fig.cap="Hierarchical clustering"}
+library("ggdendro", warn.conflicts = FALSE)
+
+distance <- dist(countries_scaled)
+countries_cluster <- hclust(distance)
+# https://stackoverflow.com/questions/21474388/colorize-clusters-in-dendogram-with-ggplot2 # nolint
+ggdendrogram(countries_cluster, rotate = TRUE, theme_dendro = FALSE)
 ```
 
+## Scatter plot matrix
 
-<!-- TODO
-Explain what variables are left and what variables are used to represent the countries.
+```{r scattermatrix, fig.cap="Scatter plot matrix"}
+library(psych, warn.conflicts = FALSE)
 
-Compare the behavior of the smoothed variables against the non smoothed to see fluctuations
-Continue with the exploratory statistics
-Check if there are correlations between variables
+pairs.panels(countries, pch = ".")
+```
 
-
-Do some type of agregation (maybe weekly, monthly, to see), also check how it will be done. Will it include the boundries? will it keep the median? the std? Another type of granularity is to have some points with a distance of time (for example, 5 days aggregation but only every 2 weeks).
-Maybe we can try our own smoothing, define the overlaping between time windows and the time windows. The need for the overlap is for the continuity of the data. 
-
-set the seed
-
-
-Maybe do some clustering to check wich countries are close to one another. Maybe not, with biplots you can get the same data
-Check the greenacre pdf as a first reference. In the book there are snippets of code to recreate the differents plots that are present in the book. Its independent from libraries.
-
-Plot the classes obtained fro the cluster in the biplot
-
-Choose granularity: month. There should be a little more than 15 points for each country.
-
-Try hierarchical clustering.  That way we can reduce the number of countries to a "level". In this way we don't have to choose the k in k means. The objective is to obtain a dendogram
-
-Maybe have a basic representation just showing the variables selected and the countries. At first. With biplot you can see if variables are correlated or not (and in what directions). Then we can add the time series into the plot.
-One possible thing that can happen is that the correlation between the variables can change from one time to another. In that case we have to ask ourselves, can we compare the situation in one time with another one?
-Another thing to do, maybe not plot the countries, but just the way the biplot changes over time, to see the fluctuations of the correlations.
-If we have any ideas, we can tackle them.
-To explain the covid stringency index https://ourworldindata.org/covid-stringency-index
--->
