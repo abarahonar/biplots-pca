@@ -147,7 +147,9 @@ columns_to_delete <- c(
   "new_vaccinations",
   "aged_65_older",
   "tests_units",
-  "aged_70_older"
+  "aged_70_older",
+  "people_vaccinated_per_hundred",
+  "people_fully_vaccinated_per_hundred"
 )
 
 unnecesary_variables <- c(
@@ -424,74 +426,39 @@ arrows(
 ```
 
 ```{r interestingcountries}
-# TODO: color
-makeplot <- function(date, my_colors) {
-  interesting_countires <- c(
-    "RUS",
-    "CHL",
-    "CHN",
-    "USA",
-    "DEU",
-    "FRA",
-    "BRA",
-    "TUR",
-    "ITA",
-    "KOR"
-    )
- 
-  indexes_1 <- which(time_series_monthly$iso_code %in% interesting_countires)
-  indexes_2 <- which(time_series_monthly_pca$date == date)
-  indexes <- intersect(indexes_1, indexes_2)
-  names <- time_series_monthly[indexes, ]$iso_code
-  pca_interesting <- pca
-  pca_interesting$x <- pca$x[indexes, ]
+interesting_countries <- c("RUS", "CHL", "CHN", "USA", "DEU", "FRA", "BRA", "TUR", "ITA", "KOR")
 
-  l_x <- pca$rotation[, 1] * 4
-  l_y <- pca$rotation[, 2] * 4
-
-  plot(
-    pca_interesting$x[, 1],
-    pca_interesting$x[, 2],
-    xlab = paste("PCA 1 (", round(s$importance[2] * 100, 1), "%)", sep = ""),
-    ylab = paste("PCA 2 (", round(s$importance[5] * 100, 1), "%)", sep = ""),
-    las = 1,
-    cex = 2,
-    pch = 20,
-    xlim = c(-3, 3),
-    ylim = c(-3, 3),
-    main = paste("Mes ", date)
-    )
-  abline(v = 0, lty = 2, col = "grey50")
-  abline(h = 0, lty = 2, col = "grey50")
-  arrows(
-    x0 = 0,
-    x1 = l_x,
-    y0 = 0,
-    y1 = l_y,
-    col = "#ff7f7f",
-    length = 0.15,
-    lwd = 1.5,
-    cex = 0.5
-    )
+get_lines <- function() {
+  months_data <- unique(time_series_monthly$date)
+  indexes_1 <- which(time_series_monthly$iso_code %in% interesting_countries)
+  names <- NULL
+  x_axis <- NULL
+  y_axis <- NULL
+  for (month in months_data) {
+    indexes_2 <- which(time_series_monthly$date == month)
+    indexes <- intersect(indexes_1, indexes_2)
+    pca_interesting <- pca
+    pca_interesting$x <- pca$x[indexes, ]
+    x_axis <- c(x_axis, pca_interesting$x[, 1])
+    y_axis <- c(y_axis, pca_interesting$x[, 2])
+    names <- c(names, time_series_monthly[indexes, ]$iso_code)
+  }
+  df <- do.call(data.frame, list(x_axis, y_axis, names))
+  colnames(df) <- c("x", "y", "iso_code")
+  return(df)
 }
-```
 
-```{r video}
-library(av, warn.conflicts = FALSE)
-png("biplots-pca_files/images/input%03d.png", width = 1280, height = 720, res = 108)
-my_cols <- palette(rainbow(10)) 
-makeplot(1, my_cols)
-makeplot(1, my_cols)
-for(i in 1:17) {
-  makeplot(i, my_cols)
-  makeplot(i, my_cols)
-}
-makeplot(17, my_cols)
-makeplot(17, my_cols)
-dev.off()
-png_files <- sprintf("biplots-pca_files/images/input%03d.png", 1:38)
-av::av_encode_video(png_files, "biplots-pca_files/videos/output.mp4", framerate=1.5)
-utils::browseURL("biplots-pca_files/videos/output.mp4")
+cols <- rainbow(length(interesting_countries))
+l_x <- pca$rotation[, 1] * 5
+l_y <- pca$rotation[, 2] * 5
+df <- get_lines()
+
+
+ggplot(data = df, aes(x = x, y = y)) +
+        geom_line(aes(colour = iso_code)) +
+        geom_point(aes(colour = iso_code))  +
+        labs(colour = "Country", x = "Deaths, vaccinations and testing", y = "Reproduction and stringency", title = "Evolution of coronavirus")
+
 ```
 
 ## Hierarchical clustering
