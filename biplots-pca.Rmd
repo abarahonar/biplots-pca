@@ -49,7 +49,10 @@ country_variables <- c(
   "diabetes_prevalence",
   "hospital_beds_per_thousand",
   "life_expectancy",
-  "human_development_index"
+  "human_development_index",
+  "female_smokers",
+  "male_smokers",
+  "extreme_poverty"
 )
 
 countries <- data[, which(names(data) %in% c("iso_code", country_variables))]
@@ -242,98 +245,254 @@ Aggregation of data is done by temporal terms rather than geographical terms. Th
 
 #### Plots of some variables in countries
 ```{r}
-interesting_countires <- c(
-  "RUS",
-  "CHL",
-  "CHN",
-  "USA",
-  "DEU",
-  "FRA",
-  "BRA",
-  "TUR",
-  "ITA",
-  "KOR"
-  ) #countries to plot
-
-# Plot all totals
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date, y = total_cases_per_million,
-            group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-# }
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date, y = total_deaths_per_million, group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date, y = reproduction_rate, group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date, y = total_tests_per_thousand, group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date,
-                y = total_vaccinations_per_hundred,
-                group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date,
-                y = people_vaccinated_per_hundred,
-                group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date,
-                y = people_fully_vaccinated_per_hundred,
-                group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date, y = total_boosters_per_hundred, group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date, y = stringency_index, group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date, y = total_cases_per_million, group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
+# interesting_countires <- c(
+#   "RUS",
+#   "CHL",
+#   "CHN",
+#   "USA",
+#   "DEU",
+#   "FRA",
+#   "BRA",
+#   "TUR",
+#   "ITA",
+#   "KOR"
+#   ) #countries to plot
+# 
+# # Plot all totals
+# subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+# p <- ggplot(data = subset,
+#             aes(x = date, y = total_cases_per_million,
+#             group = iso_code)) +
+#   geom_line(aes(color = iso_code)) +
+#   theme(axis.text.x = element_blank())
+# print(p)
+# # }
+# subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+# p <- ggplot(data = subset,
+#             aes(x = date, y = total_deaths_per_million, group = iso_code)) +
+#   geom_line(aes(color = iso_code)) +
+#   theme(axis.text.x = element_blank())
+# print(p)
+# 
+# subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+# p <- ggplot(data = subset,
+#             aes(x = date, y = reproduction_rate, group = iso_code)) +
+#   geom_line(aes(color = iso_code)) +
+#   theme(axis.text.x = element_blank())
+# print(p)
+# 
+# subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+# p <- ggplot(data = subset,
+#             aes(x = date, y = total_tests_per_thousand, group = iso_code)) +
+#   geom_line(aes(color = iso_code)) +
+#   theme(axis.text.x = element_blank())
+# print(p)
+# 
+# subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+# p <- ggplot(data = subset,
+#             aes(x = date,
+#                 y = total_vaccinations_per_hundred,
+#                 group = iso_code)) +
+#   geom_line(aes(color = iso_code)) +
+#   theme(axis.text.x = element_blank())
+# print(p)
+# 
+# subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+# p <- ggplot(data = subset,
+#             aes(x = date,
+#                 y = people_vaccinated_per_hundred,
+#                 group = iso_code)) +
+#   geom_line(aes(color = iso_code)) +
+#   theme(axis.text.x = element_blank())
+# print(p)
+# 
+# subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+# p <- ggplot(data = subset,
+#             aes(x = date,
+#                 y = people_fully_vaccinated_per_hundred,
+#                 group = iso_code)) +
+#   geom_line(aes(color = iso_code)) +
+#   theme(axis.text.x = element_blank())
+# print(p)
+# 
+# subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+# p <- ggplot(data = subset,
+#             aes(x = date, y = total_boosters_per_hundred, group = iso_code)) +
+#   geom_line(aes(color = iso_code)) +
+#   theme(axis.text.x = element_blank())
+# print(p)
+# 
+# subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+# p <- ggplot(data = subset,
+#             aes(x = date, y = stringency_index, group = iso_code)) +
+#   geom_line(aes(color = iso_code)) +
+#   theme(axis.text.x = element_blank())
+# print(p)
+# 
+# subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+# p <- ggplot(data = subset,
+#             aes(x = date, y = total_cases_per_million, group = iso_code)) +
+#   geom_line(aes(color = iso_code)) +
+#   theme(axis.text.x = element_blank())
+# print(p)
 ```
 
+## Biplots
+```{r pca}
+time_series_monthly_pca <- data.frame(time_series_monthly)
+time_series_monthly_pca$iso_code <-  NULL
+time_series_monthly_pca$date <- NULL
+pca <- prcomp(time_series_monthly_pca, scale = TRUE)
+
+layout(matrix(1:2, ncol = 2))
+screeplot(pca)
+screeplot(pca, type = "lines")
+```
+
+```{r biplot}
+s <- summary(pca)
+l_x <- pca$rotation[, 1] * 10
+l_y <- pca$rotation[, 2] * 10
+lo <- which(l_y < 0)
+hi <- which(l_y > 0)
+l_pos <- l_y
+l_pos <- replace(l_pos, lo, "1")
+l_pos <- replace(l_pos, hi, "3")
+
+plot(
+  pca$x[, 1],
+  pca$x[, 2],
+  xlab = paste("PCA 1 (", round(s$importance[2] * 100, 1), "%)", sep = ""),
+  ylab = paste("PCA 2 (", round(s$importance[5] * 100, 1), "%)", sep = ""),
+  las = 1,
+  col = "white",
+  ylim = c(-9, 2),
+  xlim = c(-1, 6)
+  )
+abline(v = 0, lty = 2, col = "grey50")
+abline(h = 0, lty = 2, col = "grey50")
+arrows(
+  x0 = 0,
+  x1 = l_x,
+  y0 = 0,
+  y1 = l_y,
+  col =
+  "red",
+  length = 0.15,
+  lwd = 1.5
+  )
+text(
+  l_x,
+  l_y,
+  labels = row.names(pca$rotation),
+  col = "red",
+  pos = l_pos,
+  lwd = 1.5,
+  cex = 0.7
+  )
+```
+
+The variables that are superposed correspond to `total_vaccionations_per_hundred`, `people_vaccinated_per_hundred` and `people_fully_vaccinated_per_hundred`.
+
+Due to the angles of the rotations, we speculate that the 1rst component in the PCA is related to data regarding death, cases, test and vaccinations.
+
+```{r countriesbiplot}
+l_x <- pca$rotation[, 1] * 5
+l_y <- pca$rotation[, 2] * 5
+
+plot(
+  pca$x[, 1],
+  pca$x[, 2],
+  xlab = paste("PCA 1 (", round(s$importance[2] * 100, 1), "%)", sep = ""),
+  ylab = paste("PCA 2 (", round(s$importance[5] * 100, 1), "%)", sep = ""),
+  las = 1,
+  cex = 0.5,
+  col = "black",
+  )
+abline(v = 0, lty = 2, col = "grey50")
+abline(h = 0, lty = 2, col = "grey50")
+arrows(
+  x0 = 0,
+  x1 = l_x,
+  y0 = 0,
+  y1 = l_y,
+  col = "#ff7f7f",
+  length = 0.15,
+  lwd = 1.5,
+  cex = 0.5
+  )
+```
+
+```{r interestingcountries}
+# TODO: color
+makeplot <- function(date, my_colors) {
+  interesting_countires <- c(
+    "RUS",
+    "CHL",
+    "CHN",
+    "USA",
+    "DEU",
+    "FRA",
+    "BRA",
+    "TUR",
+    "ITA",
+    "KOR"
+    )
+ 
+  indexes_1 <- which(time_series_monthly$iso_code %in% interesting_countires)
+  indexes_2 <- which(time_series_monthly_pca$date == date)
+  indexes <- intersect(indexes_1, indexes_2)
+  names <- time_series_monthly[indexes, ]$iso_code
+  pca_interesting <- pca
+  pca_interesting$x <- pca$x[indexes, ]
+
+  l_x <- pca$rotation[, 1] * 4
+  l_y <- pca$rotation[, 2] * 4
+
+  plot(
+    pca_interesting$x[, 1],
+    pca_interesting$x[, 2],
+    xlab = paste("PCA 1 (", round(s$importance[2] * 100, 1), "%)", sep = ""),
+    ylab = paste("PCA 2 (", round(s$importance[5] * 100, 1), "%)", sep = ""),
+    las = 1,
+    cex = 2,
+    pch = 20,
+    xlim = c(-3, 3),
+    ylim = c(-3, 3),
+    main = paste("Mes ", date)
+    )
+  abline(v = 0, lty = 2, col = "grey50")
+  abline(h = 0, lty = 2, col = "grey50")
+  arrows(
+    x0 = 0,
+    x1 = l_x,
+    y0 = 0,
+    y1 = l_y,
+    col = "#ff7f7f",
+    length = 0.15,
+    lwd = 1.5,
+    cex = 0.5
+    )
+}
+```
+
+```{r video}
+library(av, warn.conflicts = FALSE)
+png("biplots-pca_files/images/input%03d.png", width = 1280, height = 720, res = 108)
+my_cols <- palette(rainbow(10)) 
+makeplot(1, my_cols)
+makeplot(1, my_cols)
+for(i in 1:17) {
+  makeplot(i, my_cols)
+  makeplot(i, my_cols)
+}
+makeplot(17, my_cols)
+makeplot(17, my_cols)
+dev.off()
+png_files <- sprintf("biplots-pca_files/images/input%03d.png", 1:38)
+av::av_encode_video(png_files, "biplots-pca_files/videos/output.mp4", framerate=1.5)
+utils::browseURL("biplots-pca_files/videos/output.mp4")
+```
 
 ## Hierarchical clustering
 
@@ -353,4 +512,3 @@ library(psych, warn.conflicts = FALSE)
 
 pairs.panels(countries, pch = ".")
 ```
-
