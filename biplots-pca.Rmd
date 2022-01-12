@@ -247,6 +247,44 @@ time_series_monthly <- aggregate_data(countries, time_series, 31)
 # time_series_weekly
 # time_series_biweekly
 # time_series_monthly
+
+# for (i in rownames(countries)) { # for each country
+#   country_subset <- totals[totals$iso_code == i, ]
+#   country_subset_mod <- country_subset
+#   # for each column name
+#   for (j in colnames(subset(country_subset, select = -c(date, iso_code, reproduction_rate)))) {
+#     col.values <- country_subset[[j]] #select one column
+#     for (k in seq_along(col.values)) {
+#       if (is.na(col.values[[k]])) { # if value = NA
+#         if (k == 1) { # if first element -> set = 0
+#           country_subset_mod[[j]][[k]] <- 0.0
+#         } else { # else set the last known one
+#           country_subset_mod[[j]][[k]] <- country_subset_mod[[j]][[k - 1]]
+#         }
+#       }
+#     }
+#   }
+#   totals_modifies <- rbind(totals_modifies, country_subset_mod)
+# }
+# 
+# time_series <- totals_modifies
+new_t <- time_series_monthly[0, ]
+for (i in rownames(countries)) {
+  subset_t <- time_series_monthly[time_series_monthly$iso == i,]
+  mod <- subset_t
+  for (j in colnames(subset(subset_t, select = -c(date, iso_code, reproduction_rate, stringency_index)))) {
+    col_values <- subset_t[[j]]
+    number_of_entries_for_country = max(seq_along(col_values))
+    while (number_of_entries_for_country > 1) {
+      mod[[j]][[number_of_entries_for_country]] <- mod[[j]][[number_of_entries_for_country]] - mod[[j]][[number_of_entries_for_country - 1]]
+      number_of_entries_for_country <- number_of_entries_for_country - 1
+    }
+  }
+  new_t <- rbind(new_t, mod)
+}
+
+# time_series_monthly_only_new_values <- new_t # DANGER
+time_series_monthly <- new_t # DANGER
 ```
 
 Aggregation of data is done by temporal terms rather than geographical terms. This means that the time series is available with a daily, weekly, biweekly and monthly evolution, with `r nrow(time_series)`, `r nrow(time_series_weekly)`, `r nrow(time_series_biweekly)`, `r nrow(time_series_monthly)` entries respectively.
@@ -355,6 +393,15 @@ pca <- prcomp(time_series_monthly_pca, scale = TRUE)
 layout(matrix(1:2, ncol = 2))
 screeplot(pca)
 screeplot(pca, type = "lines")
+
+time_series_monthly_only_new_values_pca <- data.frame(time_series_monthly_only_new_values)
+time_series_monthly_only_new_values_pca$iso_code <-  NULL
+time_series_monthly_only_new_values_pca$date <- NULL
+pca_new <- prcomp(time_series_monthly_only_new_values_pca, scale = TRUE)
+
+layout(matrix(1:2, ncol = 2))
+screeplot(pca_new)
+screeplot(pca_new, type = "lines")
 ```
 
 ```{r biplot}
@@ -374,7 +421,7 @@ plot(
   ylab = paste("PCA 2 (", round(s$importance[5] * 100, 1), "%)", sep = ""),
   las = 1,
   col = "white",
-  ylim = c(-8, 2),
+  ylim = c(-8, 8),
   xlim = c(-1, 6.5)
   )
 abline(v = 0, lty = 2, col = "grey50")
@@ -522,6 +569,38 @@ get_lines <- function(cluster_number) {
     x_axis <- c(x_axis, pca_interesting$x[, 1])
     y_axis <- c(y_axis, pca_interesting$x[, 2])
     names <- c(names, time_series_monthly[indexes, ]$iso_code)
+  }
+  df <- do.call(data.frame, list(x_axis, y_axis, names))
+  colnames(df) <- c("x", "y", "iso_code")
+  return(df)
+}
+
+number_of_clusters <- unique(countries_with_clusters$cluster)
+for (i in number_of_clusters) {
+  df <- get_lines(i)
+  plot <- ggplot() +
+    geom_line(data = df, aes(x = x, y = y, colour = iso_code)) +
+    labs(colour = "Country", x = "Deaths, vaccinations and testing", y = "Reproduction and stringency", title = "Evolution of coronavirus within the class")
+  print(plot)
+}
+
+
+# For new data only
+get_lines <- function(cluster_number) {
+  countries_names <- row.names(countries_with_clusters[countries_with_clusters$cluster == cluster_number, ])
+  months_data <- unique(time_series_monthly_only_new_values$date)
+  indexes_1 <- which(time_series_monthly_only_new_values$iso_code %in% countries_names)
+  names <- NULL
+  x_axis <- NULL
+  y_axis <- NULL
+  for (month in months_data) {
+    indexes_2 <- which(time_series_monthly_only_new_values$date == month)
+    indexes <- intersect(indexes_1, indexes_2)
+    pca_interesting <- pca
+    pca_interesting$x <- pca$x[indexes, ]
+    x_axis <- c(x_axis, pca_interesting$x[, 1])
+    y_axis <- c(y_axis, pca_interesting$x[, 2])
+    names <- c(names, time_series_monthly_only_new_values[indexes, ]$iso_code)
   }
   df <- do.call(data.frame, list(x_axis, y_axis, names))
   colnames(df) <- c("x", "y", "iso_code")
