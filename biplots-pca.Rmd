@@ -243,31 +243,6 @@ time_series_monthly <- aggregate_data(countries, time_series, 31)
 ```
 
 ```{r}
-# in here do the subtractions to the following variables
-# time_series_weekly
-# time_series_biweekly
-# time_series_monthly
-
-# for (i in rownames(countries)) { # for each country
-#   country_subset <- totals[totals$iso_code == i, ]
-#   country_subset_mod <- country_subset
-#   # for each column name
-#   for (j in colnames(subset(country_subset, select = -c(date, iso_code, reproduction_rate)))) {
-#     col.values <- country_subset[[j]] #select one column
-#     for (k in seq_along(col.values)) {
-#       if (is.na(col.values[[k]])) { # if value = NA
-#         if (k == 1) { # if first element -> set = 0
-#           country_subset_mod[[j]][[k]] <- 0.0
-#         } else { # else set the last known one
-#           country_subset_mod[[j]][[k]] <- country_subset_mod[[j]][[k - 1]]
-#         }
-#       }
-#     }
-#   }
-#   totals_modifies <- rbind(totals_modifies, country_subset_mod)
-# }
-# 
-# time_series <- totals_modifies
 new_t <- time_series_monthly[0, ]
 for (i in rownames(countries)) {
   subset_t <- time_series_monthly[time_series_monthly$iso == i,]
@@ -283,8 +258,16 @@ for (i in rownames(countries)) {
   new_t <- rbind(new_t, mod)
 }
 
-# time_series_monthly_only_new_values <- new_t # DANGER
-time_series_monthly <- new_t # DANGER
+
+time_series_monthly_only_new_values <- new_t %>% 
+  rename(
+    new_cases = total_cases_per_million,
+    new_deaths = total_deaths_per_million,
+    new_tests = total_tests_per_thousand,
+    new_vaccinations = total_vaccinations_per_hundred,
+    new_boosters = total_boosters_per_hundred
+    )
+time_series_monthly_only_new_values
 ```
 
 Aggregation of data is done by temporal terms rather than geographical terms. This means that the time series is available with a daily, weekly, biweekly and monthly evolution, with `r nrow(time_series)`, `r nrow(time_series_weekly)`, `r nrow(time_series_biweekly)`, `r nrow(time_series_monthly)` entries respectively.
@@ -405,9 +388,11 @@ screeplot(pca_new, type = "lines")
 ```
 
 ```{r biplot}
+get_pca_aces <- function(pca, y_dimention, left_limit, right_limit, bottom_limit, up_limmit) {
+
 s <- summary(pca)
 l_x <- pca$rotation[, 1] * 10
-l_y <- pca$rotation[, 2] * 10
+l_y <- pca$rotation[, y_dimention] * 10
 lo <- which(l_y < 0)
 hi <- which(l_y > 0)
 l_pos <- l_y
@@ -416,13 +401,13 @@ l_pos <- replace(l_pos, hi, "3")
 
 plot(
   pca$x[, 1],
-  pca$x[, 2],
+  pca$x[, y_dimention],
   xlab = paste("PCA 1 (", round(s$importance[2] * 100, 1), "%)", sep = ""),
-  ylab = paste("PCA 2 (", round(s$importance[5] * 100, 1), "%)", sep = ""),
+  ylab = paste("PCA ", y_dimention, " (", round(s$importance[2+3*(y_dimention-1)] * 100, 1), "%)", sep = ""),
   las = 1,
   col = "white",
-  ylim = c(-8, 8),
-  xlim = c(-1, 6.5)
+  ylim = c(bottom_limit, up_limmit),
+  xlim = c(left_limit, right_limit)
   )
 abline(v = 0, lty = 2, col = "grey50")
 abline(h = 0, lty = 2, col = "grey50")
@@ -445,11 +430,28 @@ text(
   lwd = 1.5,
   cex = 0.7
   )
+}
+
+get_pca_aces(pca, 2, -1, 6.5, -10, 9)
+get_pca_aces(pca, 3, -1, 6.5, -10, 9)
+get_pca_aces(pca, 4, -1, 6.5, -10, 9)
+
+
+get_pca_aces(pca_new, 2, -1, 6.5, -10, 9)
+get_pca_aces(pca_new, 3, -1, 6.5, -10, 9)
+get_pca_aces(pca_new, 4, -1, 6.5, -10, 9)
+
+
 ```
 
 The variables that are superposed correspond to `total_vaccionations_per_hundred`, `people_vaccinated_per_hundred` and `people_fully_vaccinated_per_hundred`.
 
 Due to the angles of the rotations, we speculate that the 1rst component in the PCA is related to data regarding death, cases, test and vaccinations.
+
+From the PCA of the accumulative values we can conclude that two first components are not sufficient to represent the data set, first of all, because it only contains 54% of the information. More than that, observation of the correlation between PCA components shows that simply taking the first two components is not fully representative. For example, within the second component we can observe direct proportionality between stringency index and reproduction rate, whereas the forth component shows inverse proportionality of the two values.
+
+As for the PCA of the non accumulated data, there is only 44,9% of information if the first two variables.
+Therefore, we decided to reduce the number of variables by deleting boosters information. This decision can be justified by the fact that only few countries applied booster vaccination campaign and the first boosters data appeared only in May  and therefore 99% of values are non assigned.
 
 ```{r countriesbiplot}
 l_x <- pca$rotation[, 1] * 5
@@ -476,6 +478,22 @@ arrows(
   lwd = 1.5,
   cex = 0.5
   )
+```
+```{r}
+ # PCA without boosters
+pca_no_boosters <- prcomp(subset(time_series_monthly_pca, select = -c(total_boosters_per_hundred)), scale = TRUE)
+pca_new_no_boosters <- prcomp(subset(time_series_monthly_only_new_values_pca, select = -c(new_boosters)), scale = TRUE)
+
+get_pca_aces(pca_no_boosters, 2, -1, 6.5, -10, 9)
+get_pca_aces(pca_no_boosters, 3, -1, 6.5, -10, 9)
+get_pca_aces(pca_no_boosters, 4, -1, 6.5, -10, 9)
+
+
+get_pca_aces(pca_new_no_boosters, 2, -6.5, 1, -10, 9)
+get_pca_aces(pca_new_no_boosters, 3, -6.5, 1, -10, 9)
+get_pca_aces(pca_new_no_boosters, 4, -6.5, 1, -10, 9)
+
+
 ```
 
 ```{r interestingcountries}
@@ -554,65 +572,156 @@ pairs.panels(countries, pch = ".")
 # Evolution within the same classes
 
 ```{r}
-get_lines <- function(cluster_number) {
+
+# Function to plot pca
+get_lines <- function(cluster_number, table, pca) {
   countries_names <- row.names(countries_with_clusters[countries_with_clusters$cluster == cluster_number, ])
-  months_data <- unique(time_series_monthly$date)
-  indexes_1 <- which(time_series_monthly$iso_code %in% countries_names)
+  months_data <- unique(table$date)
+  indexes_1 <- which(table$iso_code %in% countries_names)
   names <- NULL
   x_axis <- NULL
   y_axis <- NULL
+  months <- NULL
   for (month in months_data) {
-    indexes_2 <- which(time_series_monthly$date == month)
+    indexes_2 <- which(table$date == month)
     indexes <- intersect(indexes_1, indexes_2)
+    countries_number <- length(indexes)
+    month_vector <- rep(c(month),times=countries_number)
     pca_interesting <- pca
     pca_interesting$x <- pca$x[indexes, ]
     x_axis <- c(x_axis, pca_interesting$x[, 1])
     y_axis <- c(y_axis, pca_interesting$x[, 2])
-    names <- c(names, time_series_monthly[indexes, ]$iso_code)
+    names <- c(names, table[indexes, ]$iso_code)
+    months <- c(months, month_vector)
   }
-  df <- do.call(data.frame, list(x_axis, y_axis, names))
-  colnames(df) <- c("x", "y", "iso_code")
+  df <- do.call(data.frame, list(x_axis, y_axis, names, as.Date(c(months), "%Y-%m-%d")))
+  colnames(df) <- c("x", "y", "iso_code", "date")
   return(df)
 }
 
+#  Display plot for accumulative value for each countries cluster
 number_of_clusters <- unique(countries_with_clusters$cluster)
 for (i in number_of_clusters) {
-  df <- get_lines(i)
+  # df <- get_lines(i, time_series_monthly, pca)
+    df <- get_lines(i, time_series_monthly_only_new_values, pca_new)
+
   plot <- ggplot() +
-    geom_line(data = df, aes(x = x, y = y, colour = iso_code)) +
-    labs(colour = "Country", x = "Deaths, vaccinations and testing", y = "Reproduction and stringency", title = "Evolution of coronavirus within the class")
+    geom_point(data = df, aes(x = x, y = y, colour = iso_code)) +
+    labs(colour = "Country", x = "New deaths & cases", y = "vaccination & testing", title = "Evolution of coronavirus within the class")
+  print(plot)
+}
+
+#  Display plot for new value for each countries cluster
+number_of_clusters <- unique(countries_with_clusters$cluster)
+for (i in number_of_clusters) {
+  df <- get_lines(i, time_series_monthly_only_new_values, pca_new)
+  plot <- ggplot() +
+    # geom_line(data = df, aes(x = x, y = y, colour = iso_code)) +
+    geom_point(data = df, aes(x = x, y = y, colour = date)) +
+    labs(colour = "Date", x = "New deaths & cases", y = "vaccination & testing", title = "Evolution of coronavirus within the class")
   print(plot)
 }
 
 
-# For new data only
-get_lines <- function(cluster_number) {
-  countries_names <- row.names(countries_with_clusters[countries_with_clusters$cluster == cluster_number, ])
-  months_data <- unique(time_series_monthly_only_new_values$date)
-  indexes_1 <- which(time_series_monthly_only_new_values$iso_code %in% countries_names)
-  names <- NULL
-  x_axis <- NULL
-  y_axis <- NULL
-  for (month in months_data) {
-    indexes_2 <- which(time_series_monthly_only_new_values$date == month)
-    indexes <- intersect(indexes_1, indexes_2)
-    pca_interesting <- pca
-    pca_interesting$x <- pca$x[indexes, ]
-    x_axis <- c(x_axis, pca_interesting$x[, 1])
-    y_axis <- c(y_axis, pca_interesting$x[, 2])
-    names <- c(names, time_series_monthly_only_new_values[indexes, ]$iso_code)
-  }
-  df <- do.call(data.frame, list(x_axis, y_axis, names))
-  colnames(df) <- c("x", "y", "iso_code")
-  return(df)
+#  Display trajectory for each eu country + Chile
+df <- get_lines(4, time_series_monthly_only_new_values, pca_new)
+eu_countries_and_chl <- unique(df$iso_code)
+for (country in eu_countries_and_chl) {
+  country_data <- df[df$iso_code == country,]
+  country_data[order(as.Date(country_data$date, format="%Y-%m-%d")),]
+  plot <- ggplot() +
+    # geom_line(data = df, aes(x = x, y = y, colour = iso_code)) +
+    # geom_point(data = country_data, aes(x = x, y = y, colour = date)) +
+    geom_path(data = country_data, aes(x = x, y = y, colour = date)) +
+    labs(colour = "Date", x = "New deaths & cases", y = "vaccination & testing", title = country)
+  print(plot)
+}
+
+```
+```{r}
+#  Display plot for new value for each countries cluster
+number_of_clusters <- unique(countries_with_clusters$cluster)
+for (i in number_of_clusters) {
+  df <- get_lines(i, time_series_monthly_only_new_values, pca_new)
+  plot <- ggplot() +
+    geom_line(data = df, aes(x = date, y = y, colour = iso_code)) +
+    # geom_line(data = df, aes(x = date, y = x, colour = iso_code)) +
+    labs(colour = "Country", x = "Time", y = "Vaccination & testing", title = "Evolution of coronavirus within the class")
+  print(plot)
 }
 
 number_of_clusters <- unique(countries_with_clusters$cluster)
 for (i in number_of_clusters) {
-  df <- get_lines(i)
+  df <- get_lines(i, time_series_monthly_only_new_values, pca_new)
   plot <- ggplot() +
-    geom_line(data = df, aes(x = x, y = y, colour = iso_code)) +
-    labs(colour = "Country", x = "Deaths, vaccinations and testing", y = "Reproduction and stringency", title = "Evolution of coronavirus within the class")
+    geom_line(data = df, aes(x = date, y = x, colour = iso_code)) +
+    # geom_line(data = df, aes(x = date, y = x, colour = iso_code)) +
+    labs(colour = "Country", x = "Time", y = "Deaths and cases", title = "Evolution of coronavirus within the class")
   print(plot)
   }
 ```
+```{r}
+# Function to plot pca
+table_no_boosters <- subset(time_series_monthly_only_new_values, select = -c(new_boosters))
+
+get_lines <- function(cluster_number, table, pca) {
+  countries_names <- row.names(countries_with_clusters[countries_with_clusters$cluster == cluster_number, ])
+  months_data <- unique(table$date)
+  indexes_1 <- which(table$iso_code %in% countries_names)
+  names <- NULL
+  x_axis <- NULL
+  y_axis <- NULL
+  months <- NULL
+  for (month in months_data) {
+    indexes_2 <- which(table$date == month)
+    indexes <- intersect(indexes_1, indexes_2)
+    countries_number <- length(indexes)
+    month_vector <- rep(c(month),times=countries_number)
+    pca_interesting <- pca
+    pca_interesting$x <- pca$x[indexes, ]
+    x_axis <- c(x_axis, pca_interesting$x[, 1])
+    y_axis <- c(y_axis, pca_interesting$x[, 2])
+    names <- c(names, table[indexes, ]$iso_code)
+    months <- c(months, month_vector)
+  }
+  df <- do.call(data.frame, list(x_axis, y_axis, names, as.Date(c(months), "%Y-%m-%d")))
+  colnames(df) <- c("x", "y", "iso_code", "date")
+  return(df)
+}
+
+#  Display plot for accumulative value for each countries cluster
+number_of_clusters <- unique(countries_with_clusters$cluster)
+for (i in number_of_clusters) {
+    df <- get_lines(i, table_no_boosters, pca_new_no_boosters)
+
+  plot <- ggplot() +
+    geom_point(data = df, aes(x = x, y = y, colour = iso_code)) +
+    labs(colour = "Country", x = "New deaths & cases", y = "vaccination & testing", title = "Evolution of coronavirus within the class")
+  print(plot)
+}
+
+#  Display plot for new value for each countries cluster
+number_of_clusters <- unique(countries_with_clusters$cluster)
+for (i in number_of_clusters) {
+  df <- get_lines(i, table_no_boosters, pca_new_no_boosters)
+  plot <- ggplot() +
+    geom_point(data = df, aes(x = x, y = y, colour = date)) +
+    labs(colour = "Date", x = "New deaths & cases", y = "vaccination & testing", title = "Evolution of coronavirus within the class")
+  print(plot)
+}
+
+
+#  Display trajectory for each eu country + Chile
+df <- get_lines(4, table_no_boosters, pca_new_no_boosters)
+eu_countries_and_chl <- unique(df$iso_code)
+for (country in eu_countries_and_chl) {
+  country_data <- df[df$iso_code == country,]
+  country_data[order(as.Date(country_data$date, format="%Y-%m-%d")),]
+  plot <- ggplot() +
+    geom_path(data = country_data, aes(x = x, y = y, colour = date)) +
+    labs(colour = "Date", x = "New deaths & cases", y = "vaccination & testing", title = country) +
+    lims(x = c(-8, 2), y = c(-9, 4))
+  print(plot)
+}
+```
+
