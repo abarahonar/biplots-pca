@@ -532,7 +532,8 @@ ggplot(countries_with_clusters, aes(x=population_density, y = hospital_beds_per_
 
 # Evolution within the same classes
 
-On the next stage of the project, we aimed to have a closer look at the behavior of the data within clusters. For that, we first plotted all the data for each cluster on the same plane. The 
+On the next stage of the project, we aimed to have a closer look at the behavior of the data within clusters. For that, we first plotted all the data for each cluster on the same plane. Taking into consideration the visualisation results of the PCA analysis (Figure 10), the axes can be interpreted as following: the values that are the most significat for defining the value of the first PCA component are new deaths and new cases, so we interprit the X axis as the composition of them. The Y axis is most influenced by the new_tests and new_vaccinations parameters, therefore Y represents a composition of these two. 
+As it can be read from the Figure 10, the values of both PCA components and two above named data compositions are inversely proportional, which means that with the increment of X value the number of new deaths and new cases decreases, and the increment of Y means recesssion of new_tests and new_vaccinations.
 ```{r pcaFunctionDefinition}
 # Function to plot pca
 get_lines <- function(cluster_number, table, pca) {
@@ -564,23 +565,35 @@ get_lines <- function(cluster_number, table, pca) {
 ```{r biplotDeltaValuesWithBoostersNoTimeClasses, fig.height = 3, fig.width = 4}
 #  Display plot for accumulative value for each countries cluster
 number_of_clusters <- unique(countries_with_clusters$cluster)
+data_sets <- list()
 for (i in number_of_clusters) {
   # df <- get_lines(i, time_series_monthly, pca)
     df <- get_lines(i, time_series_monthly_only_new_values, pca_new)
-
+    data_sets[[i]] <- df
   plot <- ggplot() +
     geom_point(data = df, aes(x = x, y = y, colour = iso_code)) +
     labs(colour = "Country", x = "New deaths & cases", y = "vaccination & testing", title = "Evolution of coronavirus within the class")
   print(plot)
+  }
+```
+Analyzing  the data within each single cluster we did not really notice any specific behavior for each country. Therefor we decided to take the total data for each cluster and compare it with one another. As we see in the (Figure x), in avarage the data of each cluster 
+
+```{r biplotDeltaValuesWithBoostersNoTimeClasses, fig.height = 3, fig.width = 4}
+colors = c("yellow", "red", "blue", "green", "black", "orange", "purple", "cyan")
+common_plot <- ggplot() +
+    labs(colour = "Country", x = "New deaths & cases", y = "vaccination & testing", title = "Evolution of coronavirus within the class")
+for (i in number_of_clusters) {
+   common_plot <- common_plot + geom_point(data=data_sets[[i]], aes(x = x, y = y), colour=colors[i]) 
 }
+  print(common_plot)
+
 ```
 
 ```{r biplotDeltaValuesWithBoostersWithTimeClasses}
 #  Display plot for new value for each countries cluster
 number_of_clusters <- unique(countries_with_clusters$cluster)
 for (i in number_of_clusters) {
-  df <- get_lines(i, time_series_mo
-  nthly_only_new_values, pca_new)
+  df <- get_lines(i, time_series_monthly_only_new_values, pca_new)
   plot <- ggplot() +
     # geom_line(data = df, aes(x = x, y = y, colour = iso_code)) +
     geom_point(data = df, aes(x = x, y = y, colour = date)) +
