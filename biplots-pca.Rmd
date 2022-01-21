@@ -622,15 +622,18 @@ print(p)
 
 The following graphs give us another dimension to analyze: the color of points represent timeline, from the earliest dates (darker blue) to the latest (light blue). Here we can clearly see a movement with time to the down on Y axis within each cluster. 
 On the example of the forth cluster we can also extract the following behavioral pattern: the earlier data entries are concentrated in the right top corner and with the time at first we see the movement to the left upper direction, which means that the new number of tests and vaccinations decreases and the number of new cases and deaths increases. Later in the timeline, the countries of the cluster increase vaccination and testing and new cases and deaths rate decrease.
-<<<<<<< HEAD
+
 From this data behavior we can conclude that new death rate and cases are inversely proportional to the vaccination and testing rate. Taking that into consideration, we can suppose that vaccination helps to decrease the spread of the virus.
+
 This information can also be interpreted in another way. As we mentioned before in the PCA analysis, the Y axis represents the response measures of the governments. We can see that in the beginning of the pandemic the response was not immediate (the countries would not start mass testing and vaccination right away). With the time the tendency was that the governments would amplify their response measures. Some possible reasons might be that the world was not prepared for a pandemic of such a scale and did not know how to react or that we simply did not have enough resources to start a mass vaccination and testing campaign.
-The data behavior described on the example of European countries cluster also applies to the other clusters. 
+
+The data behavior described on the example of European countries cluster also applies to the other clusters.
+
 ```{r latinAmericanTimeDistribution, fig.height=3, fig.cap="Time distribution of latin american countries"}
 df <- get_lines(2, table_no_boosters, pca_new_no_boosters)
 plot <- ggplot() +
   geom_point(data = df, aes(x = x, y = y, colour = date)) +
-  labs(colour = "Date", x = "New deaths & cases", y = "vaccination & testing", title = "Evolution of coronavirus within the class")
+  labs(colour = "Date", x = "New deaths & cases", y = "vaccination & testing")
 print(plot)
 ```
 
@@ -638,10 +641,12 @@ print(plot)
 df <- get_lines(4, table_no_boosters, pca_new_no_boosters)
 plot <- ggplot() +
   geom_point(data = df, aes(x = x, y = y, colour = date)) +
-  labs(colour = "Date", x = "New deaths & cases", y = "vaccination & testing", title = "Evolution of coronavirus within the class")
+  labs(colour = "Date", x = "New deaths & cases", y = "vaccination & testing")
 print(plot)
 ```
+
 The previous visualizations gave us a clear idea that there is a common trajectory
+
 ```{r PCA2evolutionOverTimeDeltaValues}
 #  Display plot for new value for each countries cluster
 number_of_clusters <- unique(countries_with_clusters$cluster)
@@ -665,7 +670,6 @@ for (i in number_of_clusters) {
   print(plot)
   }
 ```
-
 
 ```{r biplotDeltaValuesWithTimeIndividual}
 #  Display trajectory for each eu country + Chile
