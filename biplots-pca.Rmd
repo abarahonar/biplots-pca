@@ -110,7 +110,7 @@ ggplot(melt(countries_scaled), aes(Var2, value)) +
   coord_flip()
 ```
 
-```{r scatterMatrix, fig.cap="Scatter plot matrix"}
+```{r scatterMatrix, fig.cap="Scatter plot matrix of the variables that constitute the country data set"}
 pairs.panels(countries, pch = ".")
 ```
 
@@ -306,17 +306,24 @@ To see the behavior of the time series data frame, refer to the Section \@ref(be
 
 # Biplots creation
 
-```{r pcaCreation, fig.cap="Variance of each components in the total data", fig.height=3}
+```{r pcaCreation, fig.cap="Variance of each components in the total data", fig.height=3, fig.width=3}
 time_series_monthly_pca <- data.frame(time_series_monthly)
 time_series_monthly_pca$iso_code <-  NULL
 time_series_monthly_pca$date <- NULL
 pca <- prcomp(time_series_monthly_pca, scale = TRUE)
 pca_s <- summary(pca)
 
-screeplot(pca)
+var_explained_df <- data.frame(PC= paste0("PC",1:7),
+                               var_explained=(pca$sdev)^2/sum((pca$sdev)^2))
+
+var_explained_df %>%
+  ggplot(aes(x=PC,y=var_explained, group=1))+
+  geom_point(size=4)+
+  geom_line()+
+  labs(x = "Dimension", y = "Variance explained")
 ```
 
-```{r pcaNewCreation, fig.cap="Variance of each components in the delta data", fig.height=3}
+```{r pcaNewCreation, fig.cap="Variance of each components in the delta data", fig.height=3, fig.width=3}
 
 time_series_monthly_only_new_values_pca <- data.frame(time_series_monthly_only_new_values)
 time_series_monthly_only_new_values_pca$iso_code <-  NULL
@@ -324,7 +331,14 @@ time_series_monthly_only_new_values_pca$date <- NULL
 pca_new <- prcomp(time_series_monthly_only_new_values_pca, scale = TRUE)
 pca_new_s <- summary(pca_new)
 
-screeplot(pca_new)
+var_explained_df <- data.frame(PC= paste0("PC",1:7),
+                               var_explained=(pca_new$sdev)^2/sum((pca_new$sdev)^2))
+
+var_explained_df %>%
+  ggplot(aes(x=PC,y=var_explained, group=1))+
+  geom_point(size=4)+
+  geom_line()+
+  labs(x = "Dimension", y = "Variance explained")
 ```
 
 PCA analysis is done on both the total and delta data frame. The variance concentrated in each component of the total and delta data can be seen in the Figures \@ref(fig:pcaCreation) and \@ref(fig:pcaNewCreation) respectively. In the figures it can be seen that with the total data, a bigger variance can be acomplished with the first two dimensions. To get the amount of information contained within the first two components, refer to the Figures \@ref(fig:pcaMainBiplot) and \@ref(fig:pcaNewMainBiplot). On both figures the corresponding biplot is included.
@@ -336,7 +350,7 @@ Due to the strong presence of the variables related to vaccinations, testing, ca
 The importance of the components 3 and 4 (and the biplot projection) of both the total and delta data can be seen in the Section \@ref(restBiplots).
 
 ```{r biplotFunction}
-get_pca_aces <- function(pca, y_dimention, left_limit, right_limit, bottom_limit, up_limmit) {
+get_pca_aces <- function(pca, y_dimention, left_limit, right_limit, bottom_limit, up_limmit, title = "") {
 
 s <- summary(pca)
 l_x <- pca$rotation[, 1] * 10
@@ -354,6 +368,7 @@ plot(
   ylab = paste("PCA ", y_dimention, " (", round(s$importance[2+3*(y_dimention-1)] * 100, 1), "%)", sep = ""),
   las = 1,
   col = "white",
+  main = title,
   ylim = c(bottom_limit, up_limmit),
   xlim = c(left_limit, right_limit)
   )
@@ -381,7 +396,7 @@ text(
 }
 ```
 
-```{r pcaMainBiplot, fig.cap="Biplot projection over the first two component in the delta data"}
+```{r pcaMainBiplot, fig.cap="Biplot projection over the first two component in total data"}
 get_pca_aces(pca, 2, -1, 6.5, -10, 9)
 ```
 
@@ -523,11 +538,15 @@ countries_with_clusters <- mutate(countries_no_outliers, cluster = cut)
 To see the behaviour of the clusters on certain of the variables, refer to the Figures \@ref(fig:clusterHumanMedian) and \@ref(fig:clusterDensityHospitalBeds).
 
 ```{r clusterHumanMedian, fig.cap="Distribution of the classes given the human development index and median age"}
-ggplot(countries_with_clusters, aes(x=human_development_index, y=median_age, color = factor(cluster))) + geom_point()
+ggplot(countries_with_clusters, aes(x=human_development_index, y=median_age, color = factor(cluster))) +
+  geom_point() +
+  labs(x = "Human development index", y = "Median age")
 ```
 
 ```{r clusterDensityHospitalBeds, fig.cap="Distribution of the classes given population density and hospital beds per thousand"}
-ggplot(countries_with_clusters, aes(x=population_density, y = hospital_beds_per_thousand, color = factor(cluster))) + geom_point()
+ggplot(countries_with_clusters, aes(x=population_density, y = hospital_beds_per_thousand, color = factor(cluster))) +
+  geom_point() +
+  labs(x = "Population density", y = "Hospital beds per thousand")
 ```
 
 # Evolution within the same classes
@@ -710,28 +729,32 @@ p <- ggplot(data = subset,
             aes(x = date, y = total_cases_per_million,
             group = iso_code)) +
   geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
+  theme(axis.text.x = element_blank()) + 
+  labs(x = "Date", y = "Total cases per million", title = "Evolution of cases")
 print(p)
 # }
 subset <- time_series[time_series$iso_code %in% interesting_countires, ]
 p <- ggplot(data = subset,
             aes(x = date, y = total_deaths_per_million, group = iso_code)) +
   geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
+  theme(axis.text.x = element_blank()) + 
+  labs(x = "Date", y = "Total deaths per million", title = "Evolution of deaths")
 print(p)
 
 subset <- time_series[time_series$iso_code %in% interesting_countires, ]
 p <- ggplot(data = subset,
             aes(x = date, y = reproduction_rate, group = iso_code)) +
   geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
+  theme(axis.text.x = element_blank()) + 
+  labs(x = "Date", y = "Reproduction rate", title = "Evolution of reproduction rate")
 print(p)
 
 subset <- time_series[time_series$iso_code %in% interesting_countires, ]
 p <- ggplot(data = subset,
             aes(x = date, y = total_tests_per_thousand, group = iso_code)) +
   geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
+  theme(axis.text.x = element_blank()) + 
+  labs(x = "Date", y = "Total tests per thousand", title = "Evolution of testing")
 print(p)
 
 subset <- time_series[time_series$iso_code %in% interesting_countires, ]
@@ -740,39 +763,35 @@ p <- ggplot(data = subset,
                 y = total_vaccinations_per_hundred,
                 group = iso_code)) +
   geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
+  theme(axis.text.x = element_blank()) + 
+  labs(x = "Date", y = "Total vaccinations per hundred", title = "Evolution of vaccination")
 print(p)
 
 subset <- time_series[time_series$iso_code %in% interesting_countires, ]
 p <- ggplot(data = subset,
             aes(x = date, y = total_boosters_per_hundred, group = iso_code)) +
   geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
+  theme(axis.text.x = element_blank()) + 
+  labs(x = "Date", y = "Total boosters per hundred", title = "Evolution of boosters")
 print(p)
 
 subset <- time_series[time_series$iso_code %in% interesting_countires, ]
 p <- ggplot(data = subset,
             aes(x = date, y = stringency_index, group = iso_code)) +
   geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date, y = total_cases_per_million, group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
+  theme(axis.text.x = element_blank()) + 
+  labs(x = "Date", y = "Stringency index", title = "Evolution of stringency index")
 print(p)
 ```
 
 ## Components 3 and 4 of the PCA analysis {#restBiplots}
 ```{r pcaBiplots}
-get_pca_aces(pca, 3, -1, 6.5, -10, 9)
-get_pca_aces(pca, 4, -1, 6.5, -10, 9)
-get_pca_aces(pca_new, 3, -1, 6.5, -10, 9)
-get_pca_aces(pca_new, 4, -1, 6.5, -10, 9)
-get_pca_aces(pca_no_boosters, 3, -1, 6.5, -10, 9)
-get_pca_aces(pca_no_boosters, 4, -1, 6.5, -10, 9)
-get_pca_aces(pca_new_no_boosters, 3, -6.5, 1, -10, 9)
-get_pca_aces(pca_new_no_boosters, 4, -6.5, 1, -10, 9)
+get_pca_aces(pca, 3, -1, 6.5, -10, 9, "1st and 3rd components of total data")
+get_pca_aces(pca, 4, -1, 6.5, -10, 9, "1st and 4rd components of total data")
+get_pca_aces(pca_new, 3, -1, 6.5, -10, 9, "1st and 3rd components of delta data")
+get_pca_aces(pca_new, 4, -1, 6.5, -10, 9, "1st and 4rd components of delta data")
+get_pca_aces(pca_no_boosters, 3, -1, 6.5, -10, 9, "1st and 3rd components of total data with no boosters")
+get_pca_aces(pca_no_boosters, 4, -1, 6.5, -10, 9, "1st and 4rd components of total data with no boosters")
+get_pca_aces(pca_new_no_boosters, 3, -6.5, 1, -10, 9, "1st and 3rd components of delta data with no boosters")
+get_pca_aces(pca_new_no_boosters, 4, -6.5, 1, -10, 9, "1st and 4rd components of delta data with no boosters")
 ```
