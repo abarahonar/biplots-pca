@@ -396,17 +396,17 @@ text(
 }
 ```
 
-```{r pcaMainBiplot, fig.cap="Biplot projection over the first two component in total data", fig.height=3}
+```{r pcaMainBiplot, fig.cap="Biplot projection over the first two component in total data"}
 get_pca_aces(pca, 2, -1, 6.5, -10, 9)
 ```
 
-```{r pcaNewMainBiplot, fig.cap="Biplot projection over the first two component in the delta data", fig.height=3}
+```{r pcaNewMainBiplot, fig.cap="Biplot projection over the first two component in the delta data"}
 get_pca_aces(pca_new, 2, -1, 6.5, -10, 9)
 ```
 
 To see the behavior of the total and delta data on the PCA domain, refer to the Figures \@ref(fig:countriesPCABiplot) and \@ref(fig:countriesPCANewBiplot) respectively. In the figures there are present every country in every month available on the data sets. 
 
-```{r countriesPCABiplot, fig.cap="Behaviour of the total data in the first two components", fig.height=3}
+```{r countriesPCABiplot, fig.cap="Behaviour of the total data in the first two components"}
 s <- pca_s
 l_x <- pca$rotation[, 1] * 5
 l_y <- pca$rotation[, 2] * 5
@@ -434,7 +434,7 @@ arrows(
   )
 ```
 
-```{r countriesPCANewBiplot, fig.cap="Behaviour of the delta data in the first two components", fig.height=3}
+```{r countriesPCANewBiplot, fig.cap="Behaviour of the delta data in the first two components"}
 s <- pca_new_s
 l_x <- pca_new$rotation[, 1] * 8
 l_y <- pca_new$rotation[, 2] * 8
@@ -470,11 +470,11 @@ pca_new_no_boosters <- prcomp(subset(time_series_monthly_only_new_values_pca, se
 
 After analyzing both figures, it can be seen that the importance of the boosters in comparison to the rest of the variables. Due to this plus the low presence on the original data set and in an effort to reduce the number of variables, we decided to delete the variable associated to the booster. After the removal of the booster variable, the resulting plots can be seen in Figures \@ref(fig:pcaMainBiplotNoBooster) and \@ref(fig:pcaNewMainBiplotNoBooster). Due to the low presence of the variable, the impact is not that noticeable, mainly an improvement on the importance of the components remaining components. However, that was to be expected due to having one variable less.
 
-```{r pcaMainBiplotNoBooster, fig.cap="Biplot projection over the first two component in the total data without boosters", fig.height=3}
+```{r pcaMainBiplotNoBooster, fig.cap="Biplot projection over the first two component in the total data without boosters"}
 get_pca_aces(pca_no_boosters, 2, -1, 6.5, -10, 9)
 ```
 
-```{r pcaNewMainBiplotNoBooster,  fig.cap="Biplot projection over the first two component in the delta data without boosters", fig.height=3}
+```{r pcaNewMainBiplotNoBooster,  fig.cap="Biplot projection over the first two component in the delta data without boosters"}
 get_pca_aces(pca_new_no_boosters, 2, -6.5, 1, -10, 9)
 ```
 
@@ -563,6 +563,7 @@ get_lines <- function(cluster_number, table, pca) {
   names <- NULL
   x_axis <- NULL
   y_axis <- NULL
+  z_axis <- NULL
   months <- NULL
   clusters <- NULL
   for (month in months_data) {
@@ -575,12 +576,13 @@ get_lines <- function(cluster_number, table, pca) {
     pca_interesting$x <- pca$x[indexes, ]
     x_axis <- c(x_axis, pca_interesting$x[, 1])
     y_axis <- c(y_axis, pca_interesting$x[, 2])
+    z_axis <- c(z_axis, pca_interesting$x[, 3])
     names <- c(names, table[indexes, ]$iso_code)
     months <- c(months, month_vector)
     clusters <- c(clusters, cluster_vector)
   }
-  df <- do.call(data.frame, list(x_axis, y_axis, names, as.Date(c(months), "%Y-%m-%d"), clusters))
-  colnames(df) <- c("x", "y", "iso_code", "date", "cluster")
+  df <- do.call(data.frame, list(x_axis, y_axis, z_axis, names, as.Date(c(months), "%Y-%m-%d"), clusters))
+  colnames(df) <- c("x", "y", "z", "iso_code", "date", "cluster")
   return(df)
 }
 
@@ -647,28 +649,54 @@ print(plot)
 
 The previous visualizations gave us a clear idea that there is a common trajectory
 
-```{r PCA2evolutionOverTimeDeltaValues}
-#  Display plot for new value for each countries cluster
-number_of_clusters <- unique(countries_with_clusters$cluster)
-for (i in number_of_clusters) {
-  df <- get_lines(i, table_no_boosters, pca_new_no_boosters)
-  plot <- ggplot() +
-    geom_line(data = df, aes(x = date, y = y, colour = iso_code)) +
-    labs(colour = "Country", x = "Time", y = "Vaccination & testing", title = "Evolution of coronavirus within the class")
-  print(plot)
-}
+```{r latinAmericaPCA1, fig.height=3, fig.cap="Evolution of the first component in Latin America"}
+df <- get_lines(2, table_no_boosters, pca_new_no_boosters)
+plot <- ggplot() +
+  geom_line(data = df, aes(x = date, y = x, colour = iso_code)) +
+  # geom_line(data = df, aes(x = date, y = x, colour = iso_code)) +
+  labs(colour = "Country", x = "Time", y = "Deaths and cases")
+print(plot)
 ```
 
-```{r PCA1evolutionOverTimeDeltaValues}
-number_of_clusters <- unique(countries_with_clusters$cluster)
-for (i in number_of_clusters) {
-  df <- get_lines(i, table_no_boosters, pca_new_no_boosters)
-  plot <- ggplot() +
-    geom_line(data = df, aes(x = date, y = x, colour = iso_code)) +
-    # geom_line(data = df, aes(x = date, y = x, colour = iso_code)) +
-    labs(colour = "Country", x = "Time", y = "Deaths and cases", title = "Evolution of coronavirus within the class")
-  print(plot)
-  }
+```{r europePCA1, fig.height=3, fig.cap="Evolution of the first component in Europe"}
+df <- get_lines(4, table_no_boosters, pca_new_no_boosters)
+plot <- ggplot() +
+  geom_line(data = df, aes(x = date, y = x, colour = iso_code)) +
+  # geom_line(data = df, aes(x = date, y = x, colour = iso_code)) +
+  labs(colour = "Country", x = "Time", y = "Deaths and cases")
+print(plot)
+```
+
+```{r latinAmericaPCA2, fig.height=3, fig.cap="Evolution of the second component in Latin America"}
+df <- get_lines(2, table_no_boosters, pca_new_no_boosters)
+plot <- ggplot() +
+  geom_line(data = df, aes(x = date, y = y, colour = iso_code)) +
+  labs(colour = "Country", x = "Time", y = "Vaccination & testing")
+print(plot)
+```
+
+```{r europaPCA2, fig.height=3, fig.cap="Evolution of the second component in Latin America"}
+df <- get_lines(4, table_no_boosters, pca_new_no_boosters)
+plot <- ggplot() +
+  geom_line(data = df, aes(x = date, y = y, colour = iso_code)) +
+  labs(colour = "Country", x = "Time", y = "Vaccination & testing")
+print(plot)
+```
+
+```{r latinAmericaPCA3, fig.height=3, fig.cap="Evolution of the third component in Latin America"}
+df <- get_lines(2, table_no_boosters, pca_new_no_boosters)
+plot <- ggplot() +
+  geom_line(data = df, aes(x = date, y = z, colour = iso_code)) +
+  labs(colour = "Country", x = "Time", y = "PCA 3")
+print(plot)
+```
+
+```{r europaPCA3, fig.height=3, fig.cap="Evolution of the third component in Latin America"}
+df <- get_lines(4, table_no_boosters, pca_new_no_boosters)
+plot <- ggplot() +
+  geom_line(data = df, aes(x = date, y = z, colour = iso_code)) +
+  labs(colour = "Country", x = "Time", y = "PCA 3")
+print(plot)
 ```
 
 ```{r FRA, fig.height=3, fig.cap="Evolution of COVID in France"}
@@ -699,6 +727,8 @@ plot <- ggplot() +
   lims(x = c(-8, 2), y = c(-9, 4))
 print(plot)
 ```
+
+\newpage
 
 # Appendix
 
@@ -779,7 +809,7 @@ print(p)
 ```
 
 ## Components 3 and 4 of the PCA analysis {#restBiplots}
-```{r pcaBiplots, fig.height=3}
+```{r pcaBiplots}
 get_pca_aces(pca, 3, -1, 6.5, -10, 9, "1st and 3rd components of total data")
 get_pca_aces(pca, 4, -1, 6.5, -10, 9, "1st and 4rd components of total data")
 get_pca_aces(pca_new, 3, -1, 6.5, -10, 9, "1st and 3rd components of delta data")
@@ -836,6 +866,33 @@ for (country in eu_countries_and_chl) {
     geom_path(data = country_data, aes(x = x, y = y, colour = date)) +
     labs(colour = "Date", x = "New deaths & cases", y = "vaccination & testing", title = country) +
     lims(x = c(-8, 2), y = c(-9, 4))
+  print(plot)
+}
+```
+### Trayectory of the PCA component 1
+
+```{r PCA1evolutionOverTimeDeltaValues, fig.height=3}
+number_of_clusters <- unique(countries_with_clusters$cluster)
+for (i in number_of_clusters) {
+  df <- get_lines(i, table_no_boosters, pca_new_no_boosters)
+  plot <- ggplot() +
+    geom_line(data = df, aes(x = date, y = x, colour = iso_code)) +
+    # geom_line(data = df, aes(x = date, y = x, colour = iso_code)) +
+    labs(colour = "Country", x = "Time", y = "Deaths and cases", title = "Evolution of the PCA 1 within the class")
+  print(plot)
+  }
+```
+
+### Trayectory of the PCA component 2
+
+```{r PCA2evolutionOverTimeDeltaValues}
+#  Display plot for new value for each countries cluster
+number_of_clusters <- unique(countries_with_clusters$cluster)
+for (i in number_of_clusters) {
+  df <- get_lines(i, table_no_boosters, pca_new_no_boosters)
+  plot <- ggplot() +
+    geom_line(data = df, aes(x = date, y = y, colour = iso_code)) +
+    labs(colour = "Country", x = "Time", y = "Vaccination & testing", title = "Evolution of the PCA 2 within the class")
   print(plot)
 }
 ```
