@@ -576,7 +576,8 @@ for (i in number_of_clusters) {
   print(plot)
   }
 ```
-Analyzing  the data within each single cluster we did not really notice any specific behavior for each country. Therefor we decided to take the total data for each cluster and compare it with one another. As we see in the (Figure x), in avarage the data of each cluster 
+Analyzing  the data within each single cluster we did not really notice any specific behavior for each country. Therefore we decided to take the total data for each cluster and compare it with one another. In the (Figure x) we can notice that for each class the data is indeed accumulated area of the graph which means there can be some kind of correlation to explore.
+More than that, though we could not extract a specific behavior for a country, we can still notice a common shape formed by the data points for each cluster: each graph tends to display a line which goes from the top left to the bottom right. That gave us a hint to have a look at how the data behaves on the timeline.
 
 ```{r biplotDeltaValuesWithBoostersNoTimeClasses, fig.height = 3, fig.width = 4}
 colors = c("yellow", "red", "blue", "green", "black", "orange", "purple", "cyan")
@@ -588,7 +589,7 @@ for (i in number_of_clusters) {
   print(common_plot)
 
 ```
-
+The following graphs give us another dimension to analyse: the color of points represent timeline, from the earliest dates (darker blue) to the latest (light blue). Here we can clearly see a movement to the upper direction on Y axis with time within each cluster.
 ```{r biplotDeltaValuesWithBoostersWithTimeClasses}
 #  Display plot for new value for each countries cluster
 number_of_clusters <- unique(countries_with_clusters$cluster)
@@ -601,6 +602,7 @@ for (i in number_of_clusters) {
   print(plot)
 }
 ```
+
 
 ```{r biplotDeltaValuesWithBoostersWithTimeIndividual}
 #  Display trajectory for each eu country + Chile
