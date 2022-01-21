@@ -10,7 +10,9 @@ fig_align: "center"
 # Introduction
 
 The main purpose of this project is to learn and apply the basics of data processing, visualization and analysis. We aim to get to know about Principal component analysis and how to represent data with it using biplots. 
-The above named academic purpose will be achieved by working with real data set. The current pandemic situation gave us the inspiration to work with the data concerning the COVID-19. The idea of the project is to explore if certain socio-economical characteristics of a country influence its virus spread rate and consequences. 
+
+The above named academic purpose will be achieved by working with real data set. The current pandemic situation gave us the inspiration to work with the data concerning the COVID-19. The idea of the project is to explore if certain socio-economical characteristics of a country influence its virus spread rate and consequences.
+
 # Pre-proccesing
 
 ```{r echo=FALSE}
@@ -609,7 +611,7 @@ plot <- ggplot() +
 print(plot)
 ```
 
-Analyzing  the data within each single cluster we did not really notice any specific behavior for each country. Therefore we decided to take the total data for each cluster and compare it with one another. In the (Figure x) we can notice that for each class the data is indeed accumulated area of the graph which means there can be some kind of correlation to explore.
+Analyzing  the data within each single cluster we did not really notice any specific behavior for each country. Therefore we decided to take the total data for each cluster and compare it with one another. In the (Figure \@ref(fig:biplotDeltaValuesNoTimeClassesAllData)) we can notice that for each class the data is indeed accumulated in an area of the graph which means there can be some kind of correlation to explore.
 
 More than that, though we could not extract a specific behavior for a country, we can still notice a common shape formed by the data points for each cluster: each graph tends to display a line which goes from the top left to the bottom right. That gave us a hint to have a look at how the data behaves on the time line.
 
@@ -653,7 +655,7 @@ print(plot)
 
 The previous visualizations gave us an idea that there is a common data trajectory on the timeline for all the countries. Though we have not yet seen a clear data correlation withing each cluster. For a more detailed examination of any common patterns we decided to have a look at how PCA components behave on a timeline for each country withing a cluster.
 
-From the following plots (\@ref(latinAmericaPCA1) - \@ref(europaPCA3)) we can see common behavior for the first, second and third PCA components within clusters. With that we can conclude that within the clusters that we derived from the static variables there is also a correlation of the time dependent attributes. That can possibly mean that there is a correlation between the socio-economical situation of a country and its politics on response to the pandemic.
+From the following plots (\@ref(fig:latinAmericaPCA1) - \@ref(fig:europaPCA3)) we can see common behavior for the first, second and third PCA components within clusters. With that we can conclude that within the clusters that we derived from the static variables there is also a correlation of the time dependent attributes. That can possibly mean that there is a correlation between the socio-economical situation of a country and its politics on response to the pandemic.
 
 ```{r latinAmericaPCA1, fig.height=3, fig.cap="Evolution of the first component in Latin America"}
 df <- get_lines(2, table_no_boosters, pca_new_no_boosters)
@@ -704,8 +706,11 @@ plot <- ggplot() +
   labs(colour = "Country", x = "Time", y = "Reproduction rate & Stringency index")
 print(plot)
 ```
+
 Finally, in order to see if the conclusions that we made based on the combined data apply to a single countries we plotted the trajectory of first two PCA components behavior for each country in the European cluster. So, our previous guess on the common trajectory was confirmed. With the time, at first the countries do not apply strict response which causes deterioration of the situation, but increasing of vaccination and testing leads to a better cases and death rate. 
+
 Although, not depending on the vaccination rate, sometimes we observe influx of new cases and death rate. We suppose that such a pattern corresponds to virus variants and/or a new wave.  
+
 ```{r FRA, fig.height=3, fig.cap="Evolution of COVID in France"}
 # "FRA", "HUN", "DEU"
 df <- get_lines(4, table_no_boosters, pca_new_no_boosters)
@@ -735,10 +740,15 @@ plot <- ggplot() +
 print(plot)
 ```
 
-\newpage
-
 # Conclusion
 
+To conclude this work, we can say that the goals set at the beginning of the project are fulfilled. We learned and applied the basics of data science, a topic that was not on our skill set, and gain and improve our knowledge of the R programming language. We managed to interpret the variables from the PCA components and apply them to data interpretation. This was done through the analysis of the correspondent biplots.
+
+A significant part of the project was dedicated to data processing, which helped us to develop skills in this sphere for future endeavors in this industry. Furthermore, due to the amount of plots that we had to analyze, this project also helped us improving our analytic and interpretation abilities.
+
+In conclusion, this project was a good introduction to data science.
+
+\newpage
 
 # Appendix
 
