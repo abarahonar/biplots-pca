@@ -586,13 +586,15 @@ get_lines <- function(cluster_number, table, pca) {
 ```
 
 Analyzing  the data within each single cluster we did not really notice any specific behavior for each country. Therefore we decided to take the total data for each cluster and compare it with one another. In the (Figure x) we can notice that for each class the data is indeed accumulated area of the graph which means there can be some kind of correlation to explore.
-More than that, though we could not extract a specific behavior for a country, we can still notice a common shape formed by the data points for each cluster: each graph tends to display a line which goes from the top left to the bottom right. That gave us a hint to have a look at how the data behaves on the timeline.
+More than that, though we could not extract a specific behavior for a country, we can still notice a common shape formed by the data points for each cluster: each graph tends to display a line which goes from the top left to the bottom right. That gave us a hint to have a look at how the data behaves on the time line.
 
-```{r biplotDeltaValuesWithBoostersNoTimeClassesAllData}
+```{r biplotDeltaValuesNoTimeClassesAllData, fig.height=3}
+table_no_boosters <- subset(time_series_monthly_only_new_values, select = -c(new_boosters))
+
 number_of_clusters <- unique(countries_with_clusters$cluster)
 final_df <- data.frame()
 for (i in number_of_clusters) {
-    df <- get_lines(i, time_series_monthly_only_new_values, pca_new)
+    df <- get_lines(i, table_no_boosters, pca_new)
     final_df <- rbind(final_df, df)
   }
 p <- ggplot() + 
@@ -600,54 +602,25 @@ p <- ggplot() +
   labs(colour = "Country", x = "New deaths & cases", y = "vaccination & testing", title = "Evolution of coronavirus within the class")
 print(p)
 ```
-The following graphs give us another dimension to analyse: the color of points represent timeline, from the earliest dates (darker blue) to the latest (light blue). Here we can clearly see a movement to the upper direction on Y axis with time within each cluster.
-```{r biplotDeltaValuesWithBoostersWithTimeClasses}
+
+The following graphs give us another dimension to analyze: the color of points represent timeline, from the earliest dates (darker blue) to the latest (light blue). Here we can clearly see a movement to the upper direction on Y axis with time within each cluster.
+
+```{r PCA2evolutionOverTimeDeltaValues}
 #  Display plot for new value for each countries cluster
 number_of_clusters <- unique(countries_with_clusters$cluster)
 for (i in number_of_clusters) {
-  df <- get_lines(i, time_series_monthly_only_new_values, pca_new)
-  plot <- ggplot() +
-    # geom_line(data = df, aes(x = x, y = y, colour = iso_code)) +
-    geom_point(data = df, aes(x = x, y = y, colour = date)) +
-    labs(colour = "Date", x = "New deaths & cases", y = "vaccination & testing", title = "Evolution of coronavirus within the class")
-  print(plot)
-}
-```
-
-
-```{r biplotDeltaValuesWithBoostersWithTimeIndividual}
-#  Display trajectory for each eu country + Chile
-df <- get_lines(4, time_series_monthly_only_new_values, pca_new)
-eu_countries_and_chl <- unique(df$iso_code)
-for (country in eu_countries_and_chl) {
-  country_data <- df[df$iso_code == country,]
-  country_data[order(as.Date(country_data$date, format="%Y-%m-%d")),]
-  plot <- ggplot() +
-    # geom_line(data = df, aes(x = x, y = y, colour = iso_code)) +
-    # geom_point(data = country_data, aes(x = x, y = y, colour = date)) +
-    geom_path(data = country_data, aes(x = x, y = y, colour = date)) +
-    labs(colour = "Date", x = "New deaths & cases", y = "vaccination & testing", title = country)
-  print(plot)
-}
-```
-
-```{r PCA2evolutionOverTimeDeltaValuesWithBoosters}
-#  Display plot for new value for each countries cluster
-number_of_clusters <- unique(countries_with_clusters$cluster)
-for (i in number_of_clusters) {
-  df <- get_lines(i, time_series_monthly_only_new_values, pca_new)
+  df <- get_lines(i, table_no_boosters, pca_new)
   plot <- ggplot() +
     geom_line(data = df, aes(x = date, y = y, colour = iso_code)) +
-    # geom_line(data = df, aes(x = date, y = x, colour = iso_code)) +
     labs(colour = "Country", x = "Time", y = "Vaccination & testing", title = "Evolution of coronavirus within the class")
   print(plot)
 }
 ```
 
-```{r PCA1evolutionOverTimeDeltaValuesWithBoosters}
+```{r PCA1evolutionOverTimeDeltaValues}
 number_of_clusters <- unique(countries_with_clusters$cluster)
 for (i in number_of_clusters) {
-  df <- get_lines(i, time_series_monthly_only_new_values, pca_new)
+  df <- get_lines(i, table_no_boosters, pca_new)
   plot <- ggplot() +
     geom_line(data = df, aes(x = date, y = x, colour = iso_code)) +
     # geom_line(data = df, aes(x = date, y = x, colour = iso_code)) +
@@ -656,7 +629,7 @@ for (i in number_of_clusters) {
   }
 ```
 
-```{r biplotDeltaValuesNoBoostersWithoutTimeClasses}
+```{r biplotDeltaValuesWithoutTimeClasses}
 table_no_boosters <- subset(time_series_monthly_only_new_values, select = -c(new_boosters))
 
 #  Display plot for accumulative value for each countries cluster
@@ -671,7 +644,7 @@ for (i in number_of_clusters) {
 }
 ```
 
-```{r biplotDeltaValuesNoBoostersWithTimeClasses}
+```{r biplotDeltaValuesWithTimeClasses}
 #  Display plot for new value for each countries cluster
 number_of_clusters <- unique(countries_with_clusters$cluster)
 for (i in number_of_clusters) {
@@ -683,7 +656,7 @@ for (i in number_of_clusters) {
 }
 ```
 
-```{r biplotDeltaValuesNoBoostersWithTimeIndividual}
+```{r biplotDeltaValuesWithTimeIndividual}
 #  Display trajectory for each eu country + Chile
 df <- get_lines(4, table_no_boosters, pca_new_no_boosters)
 eu_countries_and_chl <- unique(df$iso_code)
@@ -791,15 +764,3 @@ get_pca_aces(pca_new_no_boosters, 4, -6.5, 1, -10, 9, "1st and 4rd components of
 ## Biplot of countries
 
 ### Biplot of data with boosters, grouped by countries
-
-```{r biplotDeltaValuesWithBoostersNoTimeClasses}
-#  Display plot for accumulative value for each countries cluster
-number_of_clusters <- unique(countries_with_clusters$cluster)
-for (i in number_of_clusters) {
-  df <- get_lines(i, time_series_monthly_only_new_values, pca_new)
-  plot <- ggplot() +
-    geom_point(data = df, aes(x = x, y = y, colour = iso_code)) +
-    labs(colour = "Country", x = "New deaths & cases", y = "vaccination & testing", title = "Evolution of coronavirus within the class")
-  print(plot)
-  }
-```
