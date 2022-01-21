@@ -737,6 +737,9 @@ print(plot)
 
 \newpage
 
+# Conclusion
+
+
 # Appendix
 
 ## Behaviour of the time series {#behaviourTimeSeries}
