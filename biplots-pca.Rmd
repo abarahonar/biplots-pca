@@ -532,6 +532,7 @@ ggplot(countries_with_clusters, aes(x=population_density, y = hospital_beds_per_
 
 # Evolution within the same classes
 
+On the next stage of the project, we aimed to have a closer look at the behavior of the data within clusters. For that, we first plotted all the data for each cluster on the same plane. The 
 ```{r pcaFunctionDefinition}
 # Function to plot pca
 get_lines <- function(cluster_number, table, pca) {
@@ -560,7 +561,7 @@ get_lines <- function(cluster_number, table, pca) {
 }
 ```
 
-```{r biplotDeltaValuesWithBoostersNoTimeClasses}
+```{r biplotDeltaValuesWithBoostersNoTimeClasses, fig.height = 3, fig.width = 4}
 #  Display plot for accumulative value for each countries cluster
 number_of_clusters <- unique(countries_with_clusters$cluster)
 for (i in number_of_clusters) {
@@ -578,7 +579,8 @@ for (i in number_of_clusters) {
 #  Display plot for new value for each countries cluster
 number_of_clusters <- unique(countries_with_clusters$cluster)
 for (i in number_of_clusters) {
-  df <- get_lines(i, time_series_monthly_only_new_values, pca_new)
+  df <- get_lines(i, time_series_mo
+  nthly_only_new_values, pca_new)
   plot <- ggplot() +
     # geom_line(data = df, aes(x = x, y = y, colour = iso_code)) +
     geom_point(data = df, aes(x = x, y = y, colour = date)) +
