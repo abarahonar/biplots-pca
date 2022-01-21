@@ -1,5 +1,5 @@
 ---
-title: Work in progress
+title: Analysis of COVID data through biplots.
 author: "Alan Barahona-Ruiz, Natalia Markoborodova"
 output:
     bookdown::pdf_document2
@@ -7,6 +7,10 @@ classoption: fleqn
 fig_align: "center"
 ---
 
+# Introduction
+
+The main purpose of this project is to learn and apply the basics of data processing and analysis. We aim to get to know about Principal component analysis and how to represent data with it using biplots. 
+The above named academic purpose will be achieved by working with real data set. The current pandemic situation gave us the inspiration to work with the data concerning the COVID-19. The idea of the project is to explore if certain socio-economical characteristics of a country influence the its virus spread rate and consequences. 
 # Pre-proccesing
 
 ```{r echo=FALSE}
