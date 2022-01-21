@@ -629,7 +629,7 @@ From this data behavior we can conclude that new death rate and cases are invers
 
 This information can also be interpreted in another way. As we mentioned before in the PCA analysis, the Y axis represents the response measures of the governments. We can see that in the beginning of the pandemic the response was not immediate (the countries would not start mass testing and vaccination right away). With the time the tendency was that the governments would amplify their response measures. Some possible reasons might be that the world was not prepared for a pandemic of such a scale and did not know how to react or that we simply did not have enough resources to start a mass vaccination and testing campaign.
 
-The data behavior described on the example of European countries cluster also applies to the other clusters.
+The data behavior described on the example of European countries cluster also applies to the other clusters. The corresponding praphs can be found in the Appendix section.
 
 ```{r latinAmericanTimeDistribution, fig.height=3, fig.cap="Time distribution of latin american countries"}
 df <- get_lines(2, table_no_boosters, pca_new_no_boosters)
@@ -647,7 +647,9 @@ plot <- ggplot() +
 print(plot)
 ```
 
-The previous visualizations gave us a clear idea that there is a common trajectory
+The previous visualizations gave us an idea that there is a common data trajectory on the timeline for all the countries. Though we have not yet seen a clear data correlation withing each cluster. For a more detailed examination of any common patterns we decided to have a look at how PCA components behave on a timeline for each country withing a cluster.
+
+From the following plots (\@ref(latinAmericaPCA1) - \@ref(europaPCA3)) we can see common behavior for the first, second and third PCA components within clusters. With that we can conclude that within the clusters that we derived from the static variables there is also a correlation of the time dependent attributes. That can possibly mean that there is a correlation between the socio-economical situation of a country and its politics on response to the pandemic.
 
 ```{r latinAmericaPCA1, fig.height=3, fig.cap="Evolution of the first component in Latin America"}
 df <- get_lines(2, table_no_boosters, pca_new_no_boosters)
@@ -695,10 +697,11 @@ print(plot)
 df <- get_lines(4, table_no_boosters, pca_new_no_boosters)
 plot <- ggplot() +
   geom_line(data = df, aes(x = date, y = z, colour = iso_code)) +
-  labs(colour = "Country", x = "Time", y = "PCA 3")
+  labs(colour = "Country", x = "Time", y = "Reproduction rate & Stringency index")
 print(plot)
 ```
-
+Finally, in order to see if the conclusions that we made based on the combined data apply to a single countries we plotted the trajectory of first two PCA components behavior for each country in the European cluster. So, our previous guess on the common trajectory was confirmed. With the time, at first the countries do not apply strict response which causes deterioration of the situation, but increasing of vaccination and testing leads to a better cases and death rate. 
+Although, not depending on the vaccination rate, sometimes we observe influx of new cases and death rate. We suppose that such a pattern corresponds to virus variants and/or a new wave.  
 ```{r FRA, fig.height=3, fig.cap="Evolution of COVID in France"}
 # "FRA", "HUN", "DEU"
 df <- get_lines(4, table_no_boosters, pca_new_no_boosters)
