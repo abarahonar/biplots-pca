@@ -1,8 +1,10 @@
 ---
 title: Work in progress
+author: "Alan Barahona-Ruiz, Natalia Markoborodova"
 output:
     bookdown::pdf_document2
 classoption: fleqn
+fig_align: "center"
 ---
 
 # Pre-proccesing
@@ -28,8 +30,6 @@ data_original <- read.csv(url(link), header = TRUE)
 
 The data used for this work comes from [Our World In Data's repositories](https://github.com/owid/covid-19-data/tree/master/public/data) (referenced as OWID for the remainder of this document). The last entry on the data set corresponds to 10/08/2021.
 
-## Cleaning and pre processing
-
 ```{r deletingOWIDEntries}
 # Remove aggregations of data
 # Those are denoted as an iso_code starting with OWID
@@ -42,7 +42,7 @@ The original data set contains `r count(data_original)` entries with `r ncol(dat
 
 The variables in the data set can be used to represent two types of information: the evolution of the pandemic as a time series and metrics regarding the situation of the countries as a whole. The former correspond to dynamic data while the latter is static data. The reason for this distinction is because the static data is repeated through out every entry of each country. This amounts to a considerable amount of data repeated in the original data frame. By collecting this repeated data into a new a data frame and deleting it from the original one, we create two distinct data frames with a higher cohesion in regard of the variables they have.
 
-### Countries data set
+## Countries data set
 The variables used to represent the countries are as follows:
 
 ```{r definitionOfCountryVariables}
@@ -84,7 +84,7 @@ fast_countries <- reporting_dates[reporting_dates$date < "2020-05-01", ]
 countries <- countries[countries$iso_code %in% fast_countries$iso_code, ]
 ```
 
-#### Starting reporting date
+### Starting reporting date
 The date on which every country started giving officials reports regarding the situation within the country varies greatly. To put this into perspective, in the Table \@ref(tab:reportingDates) offers a sample of the data frame. In it we can see that some countries started reporting relatively early (just two months after the perceived start of the pandemic), meanwhile others started after a year had already passed. This incongruity leaves several countries with less entries in the data frame, possibly creating some bias in the analysis. Due to this, some trimming based on the starting reporting date is done, considering the date 05/01/2020 as threshold. Countries that starting reporting after the threshold are deleted. The remaining countries consists of `r count(countries)` entries.
 
 ```{r deletingNAs}
@@ -95,11 +95,11 @@ rownames(countries_with_names) <- countries[, 1]
 countries <- countries_with_names
 ```
 
-#### Information missing
+### Information missing
 Several countries have one or more variables where they have NA (***not assigned***) values. Taking into consideration that certain techniques like clustering do not perform correctly in the presence of NAs. Due to this, countries that have one or more variable with NAs are removed, with one exception. The variable related to the percentage of the population living in extreme poverty is not assigned is not present in several first world countries. Due to this, if this variable is considered in the trimming for missing information several high profile countries would be lost. Is because of this that in the cases where the extreme poverty is missing, is assumed to be 0. After this the data frame consists of `r count(countries)` entries.
 
 
-After these two trimming processes, the pre process of the country data frame is done. To see the behavior of the variables that compose the countries data frame, refer to the Figure \@ref(fig:lotBoxplots).
+After these two trimming processes, the pre process of the country data frame is done. To see the behavior of the variables that compose the countries data frame, refer to the Figures \@ref(fig:lotBoxplots) and \@ref(fig:scatterMatrix).
 
 ```{r lotBoxplots, fig.cap="Boxplots of the different variables"}
 # The scales are way too big, we should normalize
@@ -110,7 +110,11 @@ ggplot(melt(countries_scaled), aes(Var2, value)) +
   coord_flip()
 ```
 
-### Time series data set
+```{r scatterMatrix, fig.cap="Scatter plot matrix"}
+pairs.panels(countries, pch = ".")
+```
+
+## Time series data set
 
 ```{r definitionOfTimeSeriesVariables}
 columns_to_delete <- c(
@@ -174,11 +178,11 @@ pander(colnames(time_series))
 
 In the same sense as with the countries data frame. The steps done are as follows:
 
-#### Deleting entries of removed countries
+### Deleting entries of removed countries
 
 Due to the removal of several countries mentioned in previous chapters, the entries related to these countries must be deleted. This is done to be able to have to have both data frames refer to the same information. This means that both data frames must deal with the same countries.
 
-#### NAs
+### NAs
 In the same sense as with the countries data frame, the presence of NAs can yield bad results depending on the technique used, this values have to be dealt with. However, it is not as simple as just deleting the variables that have some NA value, because, in essence, every variable has NAs. This is because when a country started reporting the COVID cases, the vaccine was no yet made. So there are no reports of people vaccinated during the early stages of the pandemic. The same applies to testing and almost every variable. Another problem that arises from the starting reporting date is that, every country started reporting after China. That means that every country has NAs but China on every variable.
 
 To deal with both these problems, the fact that every remaining country started reporting before the 05/01/2020, every entry before that date can be deleted. After these, studying the percentage of NAs in every variable in the time series data frame gives us a list of variables that can be cut off. The threshold for this is 60% or more of NAs are not accepted. A rundown of these variables can be seen on the Table \@ref(tab:percentagesTable). However, not every entry is deleted. This is due to the in time mentioned before. So the variables related to testing and vaccination are not deleted. This is because this variables have valuable information, were introduced late, and can their value can be inferred.
@@ -202,7 +206,7 @@ kable(percentages, caption="Variables with a percentage of NA values over 60\\%"
 
 Considering that several countries release a new report not a daily basis, the information in between is going to be NA. Because of this, a way to fill the gaps in between reports is to maintain the previous value until a new one is found. In the cases were no previous value exists, then is assumed to be 0.
 
-#### Cumulative data
+### Cumulative data {#cumulativeData}
 
 Due to the fact that the data frame has such a fine granularity (one entry per day per country) and several countries do not release reports daily, there are several entries that are repeated for shorts period of time. This happens per variable and is independent from the other variables. This means that some variables may repeat n times at time $t_0$, but another variable repeat m times at time $t_1$. Due to this and with the aim of reducing the granularity of the data frame, very variable is transformed to a cumulative form. This means that, if variable $y$ equals $x_0$ at time $t_0$ and variable $y$ equals $x_1$ at time $t_1$, then in a cumulative form $y$ equals $x_0$ at time $t_0$ and variable $y$ equals $x_0 + x_1$ at time $t_1$. This accumulation of data is done on a variable and country basis. 
 
@@ -239,7 +243,7 @@ for (i in rownames(countries)) { # for each country
 time_series <- totals_modifies
 ```
 
-With the data frame in this form, the granularity can be easily obtained. This is done by selecting the entries in the data frame that are a month and week apart. With this we can create a data frame that contains information on a month granularity and another one with a week granularity. During the reaminder of this document, the data frame with a month granularity is used.
+With the data frame in this form, the granularity can be easily obtained. This is done by selecting the entries in the data frame that are a month and week apart. With this we can create a data frame that contains information on a month granularity and another one with a week granularity. During the remainder of this document, the data frame with a month granularity is used.
 
 ```{r reductionOfRowsThroughAggregation}
 aggregate_data <- function(countries, time_series, jump) {
@@ -267,7 +271,7 @@ time_series_biweekly <- aggregate_data(countries, time_series, 14)
 time_series_monthly <- aggregate_data(countries, time_series, 31)
 ```
 
-However, a downside of having only cumulative data is that there is an intrinsic correlation in the variables. This is because they constantly grow. Due to this, a data frame consisting only the difference between one month and another is created. During the remainder of this document. The data frame with cumulative data will be referenced as total data frame meanwhile the one consisting of the difference as delta data frame.
+However, a downside of having only cumulative data is that there is an intrinsic correlation in the variables. This is because they constantly grow. Due to this, a data frame consisting only the difference between one month and another is created. During the remainder of this document. The data frame with cumulative data will be referenced as total data meanwhile the one consisting of the difference as delta data
 
 ```{r timeSeriesWithDeltasFromCummulativeData}
 new_t <- time_series_monthly[0, ]
@@ -296,109 +300,42 @@ time_series_monthly_only_new_values <- new_t %>%
     )
 ```
 
-#### Behaviour of the data frame
+### Behaviour of the data frame
 
-To see the behaviour of the time series data frame, some countries are hand picked to show the behaviour of some variables. These countries corresponds to Russia, Chile, China, the United Stated of America, Germany, Franec, Brazil, Turkey, Italy and South Korea.
+To see the behavior of the time series data frame, refer to the Section \@ref(behaviourTimeSeries). Some countries are hand picked to show the behavior of some variables. These countries corresponds to Russia, Chile, China, the United Stated of America, Germany, France, Brazil, Turkey, Italy and South Korea.
 
-```{r somePlotsOfCountriesVariables}
-interesting_countires <- c(
-  "RUS",
-  "CHL",
-  "CHN",
-  "USA",
-  "DEU",
-  "FRA",
-  "BRA",
-  "TUR",
-  "ITA",
-  "KOR"
-  ) #countries to plot
+# Biplots creation
 
-# Plot all totals
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date, y = total_cases_per_million,
-            group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-# }
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date, y = total_deaths_per_million, group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date, y = reproduction_rate, group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date, y = total_tests_per_thousand, group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date,
-                y = total_vaccinations_per_hundred,
-                group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date, y = total_boosters_per_hundred, group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date, y = stringency_index, group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-
-subset <- time_series[time_series$iso_code %in% interesting_countires, ]
-p <- ggplot(data = subset,
-            aes(x = date, y = total_cases_per_million, group = iso_code)) +
-  geom_line(aes(color = iso_code)) +
-  theme(axis.text.x = element_blank())
-print(p)
-```
-
-## Biplots
-```{r pcaCreation}
+```{r pcaCreation, fig.cap="Variance of each components in the total data", fig.height=3}
 time_series_monthly_pca <- data.frame(time_series_monthly)
 time_series_monthly_pca$iso_code <-  NULL
 time_series_monthly_pca$date <- NULL
 pca <- prcomp(time_series_monthly_pca, scale = TRUE)
+pca_s <- summary(pca)
 
-layout(matrix(1:2, ncol = 2))
 screeplot(pca)
-screeplot(pca, type = "lines")
+```
+
+```{r pcaNewCreation, fig.cap="Variance of each components in the delta data", fig.height=3}
 
 time_series_monthly_only_new_values_pca <- data.frame(time_series_monthly_only_new_values)
 time_series_monthly_only_new_values_pca$iso_code <-  NULL
 time_series_monthly_only_new_values_pca$date <- NULL
 pca_new <- prcomp(time_series_monthly_only_new_values_pca, scale = TRUE)
-
-pca_s <- summary(pca)
 pca_new_s <- summary(pca_new)
-layout(matrix(1:2, ncol = 2))
+
 screeplot(pca_new)
-screeplot(pca_new, type = "lines")
 ```
 
-```{r biplotWithBoosters}
+PCA analysis is done on both the total and delta data frame. The variance concentrated in each component of the total and delta data can be seen in the Figures \@ref(fig:pcaCreation) and \@ref(fig:pcaNewCreation) respectively. In the figures it can be seen that with the total data, a bigger variance can be acomplished with the first two dimensions. To get the amount of information contained within the first two components, refer to the Figures \@ref(fig:pcaMainBiplot) and \@ref(fig:pcaNewMainBiplot). On both figures the corresponding biplot is included.
+
+In the figure regarding the total data, a high correlation can be seen in the variables related to vaccinations, testing, cases and deaths, and to a certain degree, boosters.  This goes along what was said in the Section \@ref(cumulativeData): having data that grow continuously are bound to be somewhat correlated. This is not the case with the delta data. In the figure we can see some new relations regarding the data. Cases are related to deaths and vaccination to testing. It is important to note that because of this correlation, the information contained in the first two components of the total data is considerably more than of the total data (54% vs 45%).
+
+Due to the strong presence of the variables related to vaccinations, testing, cases and deaths on the first component of the total data, we suggest that the first component correspond to the tangible effect of the COVID Meanwhile, on the second component the intangible effect of the COVID can be seen: both the reproduction rate of the COVID and the governments response. As for the delta data, the first components corresponds to the impact of the COVID (cases and death), and the second corresponds to the mitigation efforts (vaccination, testing and boosters).
+
+The importance of the components 3 and 4 (and the biplot projection) of both the total and delta data can be seen in the Section \@ref(restBiplots).
+
+```{r biplotFunction}
 get_pca_aces <- function(pca, y_dimention, left_limit, right_limit, bottom_limit, up_limmit) {
 
 s <- summary(pca)
@@ -442,31 +379,20 @@ text(
   cex = 0.7
   )
 }
-
-get_pca_aces(pca, 2, -1, 6.5, -10, 9)
-get_pca_aces(pca, 3, -1, 6.5, -10, 9)
-get_pca_aces(pca, 4, -1, 6.5, -10, 9)
-
-
-get_pca_aces(pca_new, 2, -1, 6.5, -10, 9)
-get_pca_aces(pca_new, 3, -1, 6.5, -10, 9)
-get_pca_aces(pca_new, 4, -1, 6.5, -10, 9)
-
-
 ```
 
-The variables that are superposed correspond to `total_vaccionations_per_hundred`, `people_vaccinated_per_hundred` and `people_fully_vaccinated_per_hundred`.
+```{r pcaMainBiplot, fig.cap="Biplot projection over the first two component in the delta data"}
+get_pca_aces(pca, 2, -1, 6.5, -10, 9)
+```
 
-Due to the angles of the rotations, we speculate that the 1rst component in the PCA is related to data regarding death, cases, test and vaccinations.
+```{r pcaNewMainBiplot, fig.cap="Biplot projection over the first two component in the delta data"}
+get_pca_aces(pca_new, 2, -1, 6.5, -10, 9)
+```
 
-From the PCA of the accumulative values we can conclude that two first components are not sufficient to represent the data set, first of all, because it only contains 54% of the information. More than that, observation of the correlation between PCA components shows that simply taking the first two components is not fully representative. For example, within the second component we can observe direct proportionality between stringency index and reproduction rate, whereas the forth component shows inverse proportionality of the two values.
+To see the behavior of the total and delta data on the PCA domain, refer to the Figures \@ref(fig:countriesPCABiplot) and \@ref(fig:countriesPCANewBiplot) respectively. In the figures there are present every country in every month available on the data sets. 
 
-As for the PCA of the non accumulated data, there is only 44,9% of information if the first two variables.
-Therefore, we decided to reduce the number of variables by deleting boosters information. This decision can be justified by the fact that only few countries applied booster vaccination campaign and the first boosters data appeared only in May  and therefore 99% of values are non assigned.
-
-```{r countriesBiplot}
-# Move!
-s <- summary(pca)
+```{r countriesPCABiplot, fig.cap="Behaviour of the total data in the first two components"}
+s <- pca_s
 l_x <- pca$rotation[, 1] * 5
 l_y <- pca$rotation[, 2] * 5
 
@@ -493,61 +419,88 @@ arrows(
   )
 ```
 
+```{r countriesPCANewBiplot, fig.cap="Behaviour of the delta data in the first two components"}
+s <- pca_new_s
+l_x <- pca_new$rotation[, 1] * 8
+l_y <- pca_new$rotation[, 2] * 8
+
+plot(
+  pca_new$x[, 1],
+  pca_new$x[, 2],
+  xlab = paste("PCA 1 (", round(s$importance[2] * 100, 1), "%)", sep = ""),
+  ylab = paste("PCA 2 (", round(s$importance[5] * 100, 1), "%)", sep = ""),
+  las = 1,
+  cex = 0.5,
+  col = "black",
+  )
+abline(v = 0, lty = 2, col = "grey50")
+abline(h = 0, lty = 2, col = "grey50")
+arrows(
+  x0 = 0,
+  x1 = l_x,
+  y0 = 0,
+  y1 = l_y,
+  col = "#ff7f7f",
+  length = 0.15,
+  lwd = 1.5,
+  cex = 0.5
+  )
+```
+
 ```{r pcaWithoutBoosters}
  # PCA without boosters
 pca_no_boosters <- prcomp(subset(time_series_monthly_pca, select = -c(total_boosters_per_hundred)), scale = TRUE)
 pca_new_no_boosters <- prcomp(subset(time_series_monthly_only_new_values_pca, select = -c(new_boosters)), scale = TRUE)
-
-get_pca_aces(pca_no_boosters, 2, -1, 6.5, -10, 9)
-get_pca_aces(pca_no_boosters, 3, -1, 6.5, -10, 9)
-get_pca_aces(pca_no_boosters, 4, -1, 6.5, -10, 9)
-
-
-get_pca_aces(pca_new_no_boosters, 2, -6.5, 1, -10, 9)
-get_pca_aces(pca_new_no_boosters, 3, -6.5, 1, -10, 9)
-get_pca_aces(pca_new_no_boosters, 4, -6.5, 1, -10, 9)
-
-
 ```
+
+After analyzing both figures, it can be seen that the importance of the boosters in comparison to the rest of the variables. Due to this plus the low presence on the original data set and in an effort to reduce the number of variables, we decided to delete the variable associated to the booster. After the removal of the booster variable, the resulting plots can be seen in Figures \@ref(fig:pcaMainBiplotNoBooster) and \@ref(fig:pcaNewMainBiplotNoBooster). Due to the low presence of the variable, the impact is not that noticeable, mainly an improvement on the importance of the components remaining components. However, that was to be expected due to having one variable less.
+
+```{r pcaMainBiplotNoBooster, fig.cap="Biplot projection over the first two component in the total data without boosters"}
+get_pca_aces(pca_no_boosters, 2, -1, 6.5, -10, 9)
+```
+
+```{r pcaNewMainBiplotNoBooster,  fig.cap="Biplot projection over the first two component in the delta data without boosters"}
+get_pca_aces(pca_new_no_boosters, 2, -6.5, 1, -10, 9)
+```
+
+For the remainder of this document, the data set that is used correspond to the delta data, which is going to be referred from this point onwards as data.
 
 ```{r interestingCountries}
-interesting_countries <- c("RUS", "CHL", "CHN", "USA", "DEU", "FRA", "BRA", "TUR", "ITA", "KOR")
-
-get_lines <- function() {
-  months_data <- unique(time_series_monthly$date)
-  indexes_1 <- which(time_series_monthly$iso_code %in% interesting_countries)
-  names <- NULL
-  x_axis <- NULL
-  y_axis <- NULL
-  for (month in months_data) {
-    indexes_2 <- which(time_series_monthly$date == month)
-    indexes <- intersect(indexes_1, indexes_2)
-    pca_interesting <- pca
-    pca_interesting$x <- pca$x[indexes, ]
-    x_axis <- c(x_axis, pca_interesting$x[, 1])
-    y_axis <- c(y_axis, pca_interesting$x[, 2])
-    names <- c(names, time_series_monthly[indexes, ]$iso_code)
-  }
-  df <- do.call(data.frame, list(x_axis, y_axis, names))
-  colnames(df) <- c("x", "y", "iso_code")
-  return(df)
-}
-
-cols <- rainbow(length(interesting_countries))
-l_x <- pca$rotation[, 1] * 5
-l_y <- pca$rotation[, 2] * 5
-df <- get_lines()
-
-ggplot() +
-  geom_line(data = df, aes(x = x, y = y, colour = iso_code)) +
-  labs(colour = "Country", x = "Deaths, vaccinations and testing", y = "Reproduction and stringency", title = "Evolution of coronavirus")
-
+# interesting_countries <- c("RUS", "CHL", "CHN", "USA", "DEU", "FRA", "BRA", "TUR", "ITA", "KOR")
+# 
+# get_lines <- function() {
+#   months_data <- unique(time_series_monthly$date)
+#   indexes_1 <- which(time_series_monthly$iso_code %in% interesting_countries)
+#   names <- NULL
+#   x_axis <- NULL
+#   y_axis <- NULL
+#   for (month in months_data) {
+#     indexes_2 <- which(time_series_monthly$date == month)
+#     indexes <- intersect(indexes_1, indexes_2)
+#     pca_interesting <- pca
+#     pca_interesting$x <- pca$x[indexes, ]
+#     x_axis <- c(x_axis, pca_interesting$x[, 1])
+#     y_axis <- c(y_axis, pca_interesting$x[, 2])
+#     names <- c(names, time_series_monthly[indexes, ]$iso_code)
+#   }
+#   df <- do.call(data.frame, list(x_axis, y_axis, names))
+#   colnames(df) <- c("x", "y", "iso_code")
+#   return(df)
+# }
+# 
+# cols <- rainbow(length(interesting_countries))
+# l_x <- pca$rotation[, 1] * 5
+# l_y <- pca$rotation[, 2] * 5
+# df <- get_lines()
+# 
+# ggplot() +
+#   geom_line(data = df, aes(x = x, y = y, colour = iso_code)) +
+#   labs(colour = "Country", x = "Deaths, vaccinations and testing", y = "Reproduction and stringency", title = "Evolution of coronavirus")
 ```
 
-## Hierarchical clustering
+# Hierarchical clustering
 
-For clustering the countries, we're not taking into consideration absolute values like population. Instead, to compare the countries we take into consideration relative parameters like density of population. Also, we excluded two countries from our data frame: Bangladesh and Malta. Both of them have way too high population density which would group them in a separate class.
-After clustering the data and analyzing the dendogram we decided to divide our data set into 5 classes.
+For clustering the countries, we're not taking into consideration absolute values like population. Instead, to compare the countries we take into consideration relative parameters like density of population. Also, we excluded certain countries from our data frame: Bangladesh, Malta, Mauritius and Singapore. These countries have way too high population density which would group them in a separate class. After clustering the data and analyzing the dendogram we decided to divide our data set into 7 classes. This can be seen in the Figure \@ref(fig:dendogram).
 
 ```{r dendogram, fig.cap="Hierarchical clustering"}
 # Remove outliers
@@ -565,17 +518,16 @@ par(mar=c(1,3,1,1))
 plot(as.phylo(countries_cluster), type = "fan", cex = 0.6, tip.color = colors[cut])
 
 countries_with_clusters <- mutate(countries_no_outliers, cluster = cut)
-
-# Plot some clusters representations
-ggplot(countries_with_clusters, aes(x=human_development_index, y=median_age, color = factor(cluster))) + geom_point()
-
-ggplot(countries_with_clusters, aes(x=population_density, y = hospital_beds_per_thousand, color = factor(cluster))) + geom_point()
 ```
 
-## Scatter plot matrix
+To see the behaviour of the clusters on certain of the variables, refer to the Figures \@ref(fig:clusterHumanMedian) and \@ref(fig:clusterDensityHospitalBeds).
 
-```{r scatterMatrix, fig.cap="Scatter plot matrix"}
-pairs.panels(countries, pch = ".")
+```{r clusterHumanMedian, fig.cap="Distribution of the classes given the human development index and median age"}
+ggplot(countries_with_clusters, aes(x=human_development_index, y=median_age, color = factor(cluster))) + geom_point()
+```
+
+```{r clusterDensityHospitalBeds, fig.cap="Distribution of the classes given population density and hospital beds per thousand"}
+ggplot(countries_with_clusters, aes(x=population_density, y = hospital_beds_per_thousand, color = factor(cluster))) + geom_point()
 ```
 
 # Evolution within the same classes
@@ -718,3 +670,92 @@ for (country in eu_countries_and_chl) {
 }
 ```
 
+# Appendix
+
+## Behaviour of the time series {#behaviourTimeSeries}
+```{r somePlotsOfCountriesVariables}
+interesting_countires <- c(
+  "RUS",
+  "CHL",
+  "CHN",
+  "USA",
+  "DEU",
+  "FRA",
+  "BRA",
+  "TUR",
+  "ITA",
+  "KOR"
+  ) #countries to plot
+
+# Plot all totals
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date, y = total_cases_per_million,
+            group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+# }
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date, y = total_deaths_per_million, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date, y = reproduction_rate, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date, y = total_tests_per_thousand, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date,
+                y = total_vaccinations_per_hundred,
+                group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date, y = total_boosters_per_hundred, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date, y = stringency_index, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+
+subset <- time_series[time_series$iso_code %in% interesting_countires, ]
+p <- ggplot(data = subset,
+            aes(x = date, y = total_cases_per_million, group = iso_code)) +
+  geom_line(aes(color = iso_code)) +
+  theme(axis.text.x = element_blank())
+print(p)
+```
+
+## Components 3 and 4 of the PCA analysis {#restBiplots}
+```{r pcaBiplots}
+get_pca_aces(pca, 3, -1, 6.5, -10, 9)
+get_pca_aces(pca, 4, -1, 6.5, -10, 9)
+get_pca_aces(pca_new, 3, -1, 6.5, -10, 9)
+get_pca_aces(pca_new, 4, -1, 6.5, -10, 9)
+get_pca_aces(pca_no_boosters, 3, -1, 6.5, -10, 9)
+get_pca_aces(pca_no_boosters, 4, -1, 6.5, -10, 9)
+get_pca_aces(pca_new_no_boosters, 3, -6.5, 1, -10, 9)
+get_pca_aces(pca_new_no_boosters, 4, -6.5, 1, -10, 9)
+```
