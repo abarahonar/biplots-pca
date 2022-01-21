@@ -345,7 +345,7 @@ PCA analysis is done on both the total and delta data frame. The variance concen
 
 In the figure regarding the total data, a high correlation can be seen in the variables related to vaccinations, testing, cases and deaths, and to a certain degree, boosters.  This goes along what was said in the Section \@ref(cumulativeData): having data that grow continuously are bound to be somewhat correlated. This is not the case with the delta data. In the figure we can see some new relations regarding the data. Cases are related to deaths and vaccination to testing. It is important to note that because of this correlation, the information contained in the first two components of the total data is considerably more than of the total data (54% vs 45%).
 
-Due to the strong presence of the variables related to vaccinations, testing, cases and deaths on the first component of the total data, we suggest that the first component correspond to the tangible effect of the COVID Meanwhile, on the second component the intangible effect of the COVID can be seen: both the reproduction rate of the COVID and the governments response. As for the delta data, the first components corresponds to the impact of the COVID (cases and death), and the second corresponds to the mitigation efforts (vaccination, testing and boosters).
+Due to the strong presence of the variables related to vaccinations, testing, cases and deaths on the first component of the total data, we suggest that the first component correspond to the tangible effect of the COVID Meanwhile, on the second component the intangible effect of the COVID can be seen: both the reproduction rate of the COVID and the governments response. As for the delta data, the first components corresponds to the impact of the COVID (cases and death), and the second corresponds to the mitigation efforts done by the governments (vaccination, testing and boosters).
 
 The importance of the components 3 and 4 (and the biplot projection) of both the total and delta data can be seen in the Section \@ref(restBiplots).
 
@@ -604,9 +604,7 @@ Analyzing  the data within each single cluster we did not really notice any spec
 
 More than that, though we could not extract a specific behavior for a country, we can still notice a common shape formed by the data points for each cluster: each graph tends to display a line which goes from the top left to the bottom right. That gave us a hint to have a look at how the data behaves on the time line.
 
-
-
-```{r biplotDeltaValuesNoTimeClassesAllData, fig.height=3}
+```{r biplotDeltaValuesNoTimeClassesAllData, fig.height=3, fig.cap="Distribution of the classes over the biplot"}
 table_no_boosters <- subset(time_series_monthly_only_new_values, select = -c(new_boosters))
 
 number_of_clusters <- unique(countries_with_clusters$cluster)
@@ -617,7 +615,7 @@ for (i in number_of_clusters) {
   }
 p <- ggplot() + 
   geom_point(data=final_df, aes(x = x, y = y, colour = cluster)) +
-  labs(colour = "Country", x = "New deaths & cases", y = "vaccination & testing", title = "Evolution of coronavirus within the class")
+  labs(colour = "Country", x = "New deaths & cases", y = "vaccination & testing")
 print(p)
 ```
 
