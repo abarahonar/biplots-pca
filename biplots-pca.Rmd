@@ -44,9 +44,9 @@ ndx <- grep(ptn, data_original$iso_code, perl = TRUE)
 data <- data_original[ndx, ]
 ```
 
-The original data set contains `r count(data_original)` entries with `r ncol(data_original)` variables. However, not all the data is needed. There are several entries that are not useful as they correspond to aggregations of data in terms of geolocalization. These entries marked as OWID consists of `r ceiling((1 - count(data)/count(data_original))*100)`% of the original data set.
+The original data set contains `r count(data_original)` entries with `r ncol(data_original)` variables. However, not all the data is needed. There are several entries that are not useful as they correspond to aggregations of data in terms of geolocalization. These entries marked as OWID consist of `r ceiling((1 - count(data)/count(data_original))*100)`% of the original data set.
 
-The variables in the data set can be used to represent two types of information: the evolution of the pandemic as a time series and metrics regarding the situation of the countries as a whole. The former correspond to dynamic data while the latter is static data. The reason for this distinction is because the static data is repeated through out every entry of each country. This amounts to a considerable amount of data repeated in the original data frame. By collecting this repeated data into a new a data frame and deleting it from the original one, we create two distinct data frames with a higher cohesion in regard of the variables they have.
+The variables in the data set can be used to represent two types of information: the evolution of the pandemic as a time series and metrics regarding the socio-economical situation of the countries. The former correspond to dynamic data while the latter is static data. The reason for this distinction is because the static data is repeated throughout every entry of each country. This leads to a considerable amount of repeated data in the original data frame. By collecting this repeated data into a new a data frame and deleting it from the original one, we created two distinct data frames with a higher cohesion in regard of the variables they have.
 
 ## Countries data set
 The variables used to represent the countries are as follows:
@@ -91,7 +91,7 @@ countries <- countries[countries$iso_code %in% fast_countries$iso_code, ]
 ```
 
 ### Starting reporting date
-The date on which every country started giving officials reports regarding the situation within the country varies greatly. To put this into perspective, in the Table \@ref(tab:reportingDates) offers a sample of the data frame. In it we can see that some countries started reporting relatively early (just two months after the perceived start of the pandemic), meanwhile others started after a year had already passed. This incongruity leaves several countries with less entries in the data frame, possibly creating some bias in the analysis. Due to this, some trimming based on the starting reporting date is done, considering the date 05/01/2020 as threshold. Countries that starting reporting after the threshold are deleted. The remaining countries consists of `r count(countries)` entries.
+The date on which every country started giving officials reports regarding the situation within the country varies greatly. To put this into perspective, Table \@ref(tab:reportingDates) offers a sample of the data frame. In it we can see that some countries started reporting relatively early (just two months after the perceived start of the pandemic), meanwhile others started after a year had already passed. This incongruity leaves several countries with less entries in the data frame, possibly creating some bias in the analysis. Due to this, some trimming based on the starting reporting date is done, considering the date 05/01/2020 as threshold. Countries that starting reporting after the threshold are deleted. The remaining countries consists of `r count(countries)` entries.
 
 ```{r deletingNAs}
 countries$extreme_poverty[is.na(countries$extreme_poverty)] <- 0
@@ -102,7 +102,7 @@ countries <- countries_with_names
 ```
 
 ### Information missing
-Several countries have one or more variables where they have NA (***not assigned***) values. Taking into consideration that certain techniques like clustering do not perform correctly in the presence of NAs. Due to this, countries that have one or more variable with NAs are removed, with one exception. The variable related to the percentage of the population living in extreme poverty is not assigned is not present in several first world countries. Due to this, if this variable is considered in the trimming for missing information several high profile countries would be lost. Is because of this that in the cases where the extreme poverty is missing, is assumed to be 0. After this the data frame consists of `r count(countries)` entries.
+Several countries have one or more variables where they have NA (***not assigned***) values. Taking into consideration that certain techniques like clustering do not perform correctly in the presence of NAs. Due to this, countries that have one or more variable with NAs are removed, with one exception. The variable related to the percentage of the population living in extreme poverty is not assigned is not present in several first world countries. Due to this, if this variable is considered in the trimming for missing information several interesting, to our opinion, countries would be lost. Because of that the cases where the extreme poverty is missing, it is assumed to be 0. After this the data frame consists of `r count(countries)` entries.
 
 
 After these two trimming processes, the pre process of the country data frame is done. To see the behavior of the variables that compose the countries data frame, refer to the Figures \@ref(fig:lotBoxplots) and \@ref(fig:scatterMatrix).
@@ -182,16 +182,16 @@ Regarding the time series, the data frame is composed of the following variables
 pander(colnames(time_series))
 ```
 
-In the same sense as with the countries data frame. The steps done are as follows:
+In the same sense as with the countries static data frame, certain steps were required to start data analysis. The steps done are as follows:
 
 ### Deleting entries of removed countries
 
-Due to the removal of several countries mentioned in previous chapters, the entries related to these countries must be deleted. This is done to be able to have to have both data frames refer to the same information. This means that both data frames must deal with the same countries.
+Due to the removal of several countries mentioned in previous chapters, the entries related to these countries must be deleted. This is done to be able to have both data frames refer to the same information. This means that both data frames must deal with the same countries.
 
 ### NAs
-In the same sense as with the countries data frame, the presence of NAs can yield bad results depending on the technique used, this values have to be dealt with. However, it is not as simple as just deleting the variables that have some NA value, because, in essence, every variable has NAs. This is because when a country started reporting the COVID cases, the vaccine was no yet made. So there are no reports of people vaccinated during the early stages of the pandemic. The same applies to testing and almost every variable. Another problem that arises from the starting reporting date is that, every country started reporting after China. That means that every country has NAs but China on every variable.
+In the same sense as with the countries static data frame, the presence of NAs can yield bad results depending on the technique used, this values have to be dealt with. However, it is not as simple as just deleting the variables that have some NA value, because, in essence, every variable has NAs. This is because when a country started reporting the COVID cases, the vaccine was no yet made. So there are no reports of people vaccinated during the early stages of the pandemic. The same applies to testing and almost every variable. Another problem that arises from the starting reporting date is that, every country started reporting after China. That means that every country has NAs but China on every variable.
 
-To deal with both these problems, the fact that every remaining country started reporting before the 05/01/2020, every entry before that date can be deleted. After these, studying the percentage of NAs in every variable in the time series data frame gives us a list of variables that can be cut off. The threshold for this is 60% or more of NAs are not accepted. A rundown of these variables can be seen on the Table \@ref(tab:percentagesTable). However, not every entry is deleted. This is due to the in time mentioned before. So the variables related to testing and vaccination are not deleted. This is because this variables have valuable information, were introduced late, and can their value can be inferred.
+To deal with both these problems, the fact that every remaining country started reporting before the 05/01/2020, every entry before that date can be deleted. After these, studying the percentage of NAs in every variable in the time series data frame gives us a list of variables that can be cut off. We chose the threshold of 60%, so that the attributes that have more of NAs than that are not accepted. A rundown of these variables can be seen on the Table \@ref(tab:percentagesTable). However, not every entry is deleted. This is due to the in time mentioned before. So the variables related to testing and vaccination are not deleted. This is because this variables have valuable information, were introduced late, and their value can be inferred.
 
 
 ```{r percentagesTable}
@@ -210,11 +210,11 @@ percentages$variable <- substr(percentages$variable,
 kable(percentages, caption="Variables with a percentage of NA values over 60\\%") # nolint
 ```
 
-Considering that several countries release a new report not a daily basis, the information in between is going to be NA. Because of this, a way to fill the gaps in between reports is to maintain the previous value until a new one is found. In the cases were no previous value exists, then is assumed to be 0.
+Considering that several countries released a new report not on a daily basis, the information in between is going to be NA. Because of this, a way to fill the gaps in between reports is to maintain the previous value until a new one is found. In the cases were no previous value exists, then is assumed to be 0.
 
 ### Cumulative data {#cumulativeData}
 
-Due to the fact that the data frame has such a fine granularity (one entry per day per country) and several countries do not release reports daily, there are several entries that are repeated for shorts period of time. This happens per variable and is independent from the other variables. This means that some variables may repeat n times at time $t_0$, but another variable repeat m times at time $t_1$. Due to this and with the aim of reducing the granularity of the data frame, very variable is transformed to a cumulative form. This means that, if variable $y$ equals $x_0$ at time $t_0$ and variable $y$ equals $x_1$ at time $t_1$, then in a cumulative form $y$ equals $x_0$ at time $t_0$ and variable $y$ equals $x_0 + x_1$ at time $t_1$. This accumulation of data is done on a variable and country basis. 
+Due to the fact that the data frame has such a fine granularity (one entry per day per country) and several countries do not release reports daily, there are several entries that are repeated for short periods of time. This happens per variable and is independent from the other variables. This means that some variables may repeat n times at time $t_0$, but another variable repeat m times at time $t_1$. Due to this and with the aim of reducing the granularity of the data frame, every variable is transformed to a cumulative form. This means that, if variable $y$ equals $x_0$ at time $t_0$ and variable $y$ equals $x_1$ at time $t_1$, then in a cumulative form $y$ equals $x_0$ at time $t_0$ and variable $y$ equals $x_0 + x_1$ at time $t_1$. This accumulation of data is done on a variable and country basis. 
 
 ```{r fillNAsWithCumulativeData}
 # Actually the next elimination can be only applied to total cases because they are the sum of every day cases. If we set previous values for an NA in columns like new_cases then we artificially increase total cases(?) because to determine total we sum up new once # nolint
@@ -277,7 +277,7 @@ time_series_biweekly <- aggregate_data(countries, time_series, 14)
 time_series_monthly <- aggregate_data(countries, time_series, 31)
 ```
 
-However, a downside of having only cumulative data is that there is an intrinsic correlation in the variables. This is because they constantly grow. Due to this, a data frame consisting only the difference between one month and another is created. During the remainder of this document. The data frame with cumulative data will be referenced as total data meanwhile the one consisting of the difference as delta data
+However, a downside of having only cumulative data is that there is an intrinsic correlation in the variables. This is because they constantly grow. Due to this, a data frame containing only the difference between one month and another is created. During the remainder of this document, the data frame with cumulative data will be referenced as total data meanwhile the one consisting of the difference as delta data.
 
 ```{r timeSeriesWithDeltasFromCummulativeData}
 new_t <- time_series_monthly[0, ]
@@ -521,7 +521,8 @@ For the remainder of this document, the data set that is used correspond to the 
 
 # Hierarchical clustering
 
-For clustering the countries, we're not taking into consideration absolute values like population. Instead, to compare the countries we take into consideration relative parameters like density of population. Also, we excluded certain countries from our data frame: Bangladesh, Malta, Mauritius and Singapore. These countries have way too high population density which would group them in a separate class. After clustering the data and analyzing the dendogram we decided to divide our data set into 7 classes. This can be seen in the Figure \@ref(fig:dendogram).
+For clustering the countries, we're not taking into consideration absolute values like population. Instead, to compare the countries we take into consideration relative parameters like density of population. Also, we excluded certain countries from our data frame: Bangladesh, Malta, Mauritius and Singapore. These countries have way too high population density which would group each of them in a separate class. After clustering the data and analyzing the dendogram we decided to divide our data set into 7 classes. This can be seen in the Figure \@ref(fig:dendogram).
+It was interesting to see that our clustering based on socio-emonomical characteristics partially correlates with the geographical distribution of the countries.  
 
 ```{r dendogram, fig.cap="Hierarchical clustering"}
 # Remove outliers
