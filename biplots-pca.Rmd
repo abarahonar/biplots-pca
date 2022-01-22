@@ -522,6 +522,7 @@ For the remainder of this document, the data set that is used correspond to the 
 # Hierarchical clustering
 
 For clustering the countries, we're not taking into consideration absolute values like population. Instead, to compare the countries we take into consideration relative parameters like density of population. Also, we excluded certain countries from our data frame: Bangladesh, Malta, Mauritius and Singapore. These countries have way too high population density which would group each of them in a separate class. After clustering the data and analyzing the dendogram we decided to divide our data set into 7 classes. This can be seen in the Figure \@ref(fig:dendogram).
+
 It was interesting to see that our clustering based on socio-emonomical characteristics partially correlates with the geographical distribution of the countries.  
 
 ```{r dendogram, fig.cap="Hierarchical clustering"}
@@ -558,9 +559,6 @@ ggplot(countries_with_clusters, aes(x=population_density, y = hospital_beds_per_
 
 # Evolution within the same classes
 
-On the next stage of the project, we aimed to have a closer look at the behavior of the data within clusters. For that, we first plotted all the data for each cluster on the same plane. Taking into consideration the visualisation results of the PCA analysis (Figure 10), the axes can be interpreted as following: the values that are the most significant for defining the value of the first PCA component are new deaths and new cases, so we interpret the X axis as the composition of them. The Y axis is most influenced by the new_tests and new_vaccinations parameters, therefore Y represents a composition of these two. 
-As it can be read from the Figure 10, the values of both PCA components and two above named data compositions are inversely proportional, which means that with the increment of X value the number of new deaths and new cases decreases, and the increment of Y means recession of new_tests and new_vaccinations.
-
 ```{r pcaFunctionDefinition}
 # Function to plot pca
 get_lines <- function(cluster_number, table, pca) {
@@ -596,6 +594,23 @@ get_lines <- function(cluster_number, table, pca) {
 table_no_boosters <- subset(time_series_monthly_only_new_values, select = -c(new_boosters))
 ```
 
+On the next stage of the project, we aimed to have a closer look at the behavior of the data within clusters. For that, we first plotted all the data for each cluster on the same plane. This can be seen on Figure \@ref(fig:biplotDeltaValuesNoTimeClassesAllData).
+
+As it can be read from the Figure 10, the values of both PCA components and two above named data compositions are inversely proportional, which means that with the increment of X value the number of new deaths and new cases decreases, and the increment of Y means recession of new_tests and new_vaccinations.
+
+```{r biplotDeltaValuesNoTimeClassesAllData, fig.height=3, fig.cap="Distribution of the classes over the biplot"}
+number_of_clusters <- unique(countries_with_clusters$cluster)
+final_df <- data.frame()
+for (i in number_of_clusters) {
+    df <- get_lines(i, table_no_boosters, pca_new_no_boosters)
+    final_df <- rbind(final_df, df)
+  }
+p <- ggplot() + 
+  geom_point(data=final_df, aes(x = x, y = y, colour = cluster)) +
+  labs(colour = "Country", x = "New deaths & cases", y = "vaccination & testing")
+print(p)
+```
+
 ```{r latinAmericaDistribution, fig.height=3, fig.cap="Distribution of latin american countries"}
 df <- get_lines(2, table_no_boosters, pca_new_no_boosters)
 plot <- ggplot() +
@@ -616,27 +631,15 @@ Analyzing  the data within each single cluster we did not really notice any spec
 
 More than that, though we could not extract a specific behavior for a country, we can still notice a common shape formed by the data points for each cluster: each graph tends to display a line which goes from the top left to the bottom right. That gave us a hint to have a look at how the data behaves on the time line.
 
-```{r biplotDeltaValuesNoTimeClassesAllData, fig.height=3, fig.cap="Distribution of the classes over the biplot"}
-number_of_clusters <- unique(countries_with_clusters$cluster)
-final_df <- data.frame()
-for (i in number_of_clusters) {
-    df <- get_lines(i, table_no_boosters, pca_new_no_boosters)
-    final_df <- rbind(final_df, df)
-  }
-p <- ggplot() + 
-  geom_point(data=final_df, aes(x = x, y = y, colour = cluster)) +
-  labs(colour = "Country", x = "New deaths & cases", y = "vaccination & testing")
-print(p)
-```
+The following graphs give us another dimension to analyze: the color of points represent timeline, from the earliest dates (darker blue) to the latest (light blue). Here we can clearly see a movement with time downwards on the Y axis within each cluster.
+  
+On the example of the fourth cluster we can also extract the following behavioral pattern: the earlier data entries are concentrated in the right top corner and with the passage of time we see at first a movement towards the left upper part, which means that the new number of tests and vaccinations decreases and the number of new cases and deaths increases. In the later months, the countries of the cluster increase vaccination and testing and new cases and deaths rate decrease.
 
-The following graphs give us another dimension to analyze: the color of points represent timeline, from the earliest dates (darker blue) to the latest (light blue). Here we can clearly see a movement with time to the down on Y axis within each cluster. 
-On the example of the forth cluster we can also extract the following behavioral pattern: the earlier data entries are concentrated in the right top corner and with the time at first we see the movement to the left upper direction, which means that the new number of tests and vaccinations decreases and the number of new cases and deaths increases. Later in the timeline, the countries of the cluster increase vaccination and testing and new cases and deaths rate decrease.
+From this behavior, we can conclude that new death rate and cases are inversely proportional to the vaccination and testing rate. Taking that into consideration, we can suppose that vaccination helps to decrease the spread of the virus.
 
-From this data behavior we can conclude that new death rate and cases are inversely proportional to the vaccination and testing rate. Taking that into consideration, we can suppose that vaccination helps to decrease the spread of the virus.
+This information can also be interpreted in another way. As we mentioned before in the PCA analysis, the Y axis represents the response measures of the governments. We can see that in the beginning of the pandemic the response was not immediate (the countries would not start mass testing and vaccination right away). With time, the tendency was that the governments would amplify their response measures. Some possible reasons might be that the world was not prepared for a pandemic of such a scale and did not know how to react or that we simply did not have enough resources to start a mass vaccination and testing campaign.
 
-This information can also be interpreted in another way. As we mentioned before in the PCA analysis, the Y axis represents the response measures of the governments. We can see that in the beginning of the pandemic the response was not immediate (the countries would not start mass testing and vaccination right away). With the time the tendency was that the governments would amplify their response measures. Some possible reasons might be that the world was not prepared for a pandemic of such a scale and did not know how to react or that we simply did not have enough resources to start a mass vaccination and testing campaign.
-
-The data behavior described on the example of European countries cluster also applies to the other clusters. The corresponding praphs can be found in the Appendix section.
+The data behavior described on the example of European countries cluster also applies to the other clusters. The corresponding graphs can be found in the Appendix section.
 
 ```{r latinAmericanTimeDistribution, fig.height=3, fig.cap="Time distribution of latin american countries"}
 df <- get_lines(2, table_no_boosters, pca_new_no_boosters)
@@ -656,7 +659,7 @@ print(plot)
 
 The previous visualizations gave us an idea that there is a common data trajectory on the timeline for all the countries. Though we have not yet seen a clear data correlation withing each cluster. For a more detailed examination of any common patterns we decided to have a look at how PCA components behave on a timeline for each country withing a cluster.
 
-From the following plots (\@ref(fig:latinAmericaPCA1) - \@ref(fig:europaPCA3)) we can see common behavior for the first, second and third PCA components within clusters. With that we can conclude that within the clusters that we derived from the static variables there is also a correlation of the time dependent attributes. That can possibly mean that there is a correlation between the socio-economical situation of a country and its politics on response to the pandemic.
+From the following plots (\@ref(fig:latinAmericaPCA1) - \@ref(fig:europaPCA3)) we can see common behavior for the first, second and third PCA components within clusters. With that we can conclude that within the clusters that we derived from the static variables there is also a correlation of the time dependent attributes. That can possibly mean that there is a correlation between the socio-economical situation of a country and its politics regarding the response to the pandemic.
 
 ```{r latinAmericaPCA1, fig.height=3, fig.cap="Evolution of the first component in Latin America"}
 df <- get_lines(2, table_no_boosters, pca_new_no_boosters)
@@ -708,9 +711,7 @@ plot <- ggplot() +
 print(plot)
 ```
 
-Finally, in order to see if the conclusions that we made based on the combined data apply to a single countries we plotted the trajectory of first two PCA components behavior for each country in the European cluster. So, our previous guess on the common trajectory was confirmed. With the time, at first the countries do not apply strict response which causes deterioration of the situation, but increasing of vaccination and testing leads to a better cases and death rate. 
-
-Although, not depending on the vaccination rate, sometimes we observe influx of new cases and death rate. We suppose that such a pattern corresponds to virus variants and/or a new wave.  
+Finally, in order to see if the conclusions that we made based on the combined data apply to a single countries, we plotted the trajectory of the first two PCA components for each country in the European cluster. With this, our previous guess on the common trajectory was confirmed. With time, at first the countries do not apply strict response which causes deterioration of the situation, but an increase in both vaccination and testing leads to a decrease in cases and death rate. Although, not depending on the vaccination rate, sometimes we observe an influx of new cases and death rate. We suppose that such a pattern corresponds to virus variants and/or a new wave.  
 
 ```{r FRA, fig.height=3, fig.cap="Evolution of COVID in France"}
 # "FRA", "HUN", "DEU"
@@ -743,11 +744,9 @@ print(plot)
 
 # Conclusion
 
-To conclude this work, we can say that the goals set at the beginning of the project are fulfilled. We learned and applied the basics of data science, a topic that was not on our skill set, and gain and improve our knowledge of the R programming language. We managed to interpret the variables from the PCA components and apply them to data interpretation. This was done through the analysis of the correspondent biplots.
+To conclude this work, we can say that the goals set at the beginning of the project are fulfilled. We learned and applied the basics of data science, a branch of computer science that was not on our skill set, and gain and improve our knowledge of the R programming language. We managed to interpret the variables from the PCA components and apply them to data interpretation. This was done through the analysis of the correspondent biplots.
 
-A significant part of the project was dedicated to data processing, which helped us to develop skills in this sphere for future endeavors in this industry. Furthermore, due to the amount of plots that we had to analyze, this project also helped us improving our analytic and interpretation abilities.
-
-In conclusion, this project was a good introduction to data science.
+A significant part of the project was dedicated to data processing, which helped us to develop skills in this sphere for future endeavors in this industry. Furthermore, due to the amount of plots that we had to analyze, this project also helped us improving our analytic and interpretation abilities. Thus, this project was a good introduction to data science for the authors.
 
 \newpage
 
